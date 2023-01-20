@@ -24,9 +24,9 @@ static const OrtApi *createApi()
     return g_ort;
 }
 
-static char *createMemoryInfo(const OrtApi *g_ort, OrtMemoryInfo *memory_info)
+static char *createMemoryInfo(const OrtApi *g_ort, OrtMemoryInfo **memory_info)
 {
-    ORT_RETURN_ON_ERROR(g_ort->CreateCpuMemoryInfo(OrtArenaAllocator, OrtMemTypeDefault, &memory_info));
+    ORT_RETURN_ON_ERROR(g_ort->CreateCpuMemoryInfo(OrtArenaAllocator, OrtMemTypeDefault, memory_info));
 
     return NULL;
 }
@@ -51,6 +51,56 @@ static char *createSession(const OrtApi *g_ort, OrtEnv *env, OrtSessionOptions *
     return NULL;
 }
 
+static char *createAllocator(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory_info, OrtAllocator **allocator)
+{
+
+    ORT_RETURN_ON_ERROR(g_ort->CreateAllocator(session, memory_info, allocator));
+
+    return NULL;
+}
+
+static char *getInputCount(const OrtApi *g_ort, OrtSession *session, size_t *input_count)
+{
+    ORT_RETURN_ON_ERROR(g_ort->SessionGetInputCount(session, input_count));
+
+    return NULL;
+}
+
+static char *getInputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *allocator, size_t input_count, char ***out)
+{
+    char **input_names = allocator->Alloc(allocator, input_count * sizeof(char *));
+    for (size_t i = 0; i < input_count; ++i)
+    {
+        ORT_RETURN_ON_ERROR(g_ort->SessionGetInputName(session, i, allocator, &input_names[i]));
+        printf("input name %ld: %s\n", i, input_names[i]);
+    }
+
+    *out = input_names;
+
+    return NULL;
+}
+
+static char *getOutputCount(const OrtApi *g_ort, OrtSession *session, size_t *output_count)
+{
+    ORT_RETURN_ON_ERROR(g_ort->SessionGetOutputCount(session, output_count));
+
+    return NULL;
+}
+
+static char *getOutputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *allocator, size_t output_count, char ***out)
+{
+    char **output_names = allocator->Alloc(allocator, output_count * sizeof(char *));
+    for (size_t i = 0; i < output_count; ++i)
+    {
+        ORT_RETURN_ON_ERROR(g_ort->SessionGetOutputName(session, i, allocator, &output_names[i]));
+        printf("input name %ld: %s\n", i, output_names[i]);
+    }
+
+    *out = output_names;
+
+    return NULL;
+}
+
 static void releaseSession(const OrtApi *g_ort, OrtSession *session)
 {
     g_ort->ReleaseSession(session);
@@ -59,6 +109,21 @@ static void releaseSession(const OrtApi *g_ort, OrtSession *session)
 static void releaseSessionOptions(const OrtApi *g_ort, OrtSessionOptions *sessionOptions)
 {
     g_ort->ReleaseSessionOptions(sessionOptions);
+}
+
+static void releaseAllocator(const OrtApi *g_ort, OrtAllocator *allocator)
+{
+    g_ort->ReleaseAllocator(allocator);
+}
+
+static void releaseAllocatorArrayOfString(OrtAllocator *allocator, size_t size, char **strings)
+{
+    for (size_t i = 0; i < size; i++)
+    {
+        allocator->Free(allocator, strings[i]);
+    }
+
+    allocator->Free(allocator, (strings));
 }
 
 static char *run(const OrtApi *g_ort, OrtSession *session)

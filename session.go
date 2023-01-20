@@ -8,6 +8,11 @@ import "C"
 type Session struct {
 	ortSession        *C.OrtSession
 	ortSessionOptions *C.OrtSessionOptions
+	ortAllocator      *C.OrtAllocator
+	inputCount        uint64
+	inputNames        []string
+	outputCount       uint64
+	outputNames       []string
 }
 
 func (s *Session) Release() {
@@ -15,7 +20,7 @@ func (s *Session) Release() {
 		return
 	}
 
-	releaseSession(gApi.ortApi, s.ortSessionOptions, s.ortSession)
+	releaseSession(gApi.ortApi, s.ortSessionOptions, s.ortSession, s.ortAllocator)
 }
 
 func (s *Session) Run() {
