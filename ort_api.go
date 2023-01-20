@@ -2,7 +2,7 @@ package falconnx
 
 /*
 	#cgo CFLAGS: -I${SRCDIR}/onnxruntime/include
-	#cgo linux LDFLAGS: -L${SRCDIR}/onnxruntime/x64 -lonnxruntime
+	#cgo linux LDFLAGS: -L${SRCDIR}/onnxruntime/linux_x64 -lonnxruntime
 
 	#include "ort_api.c"
 */
