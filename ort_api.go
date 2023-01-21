@@ -129,8 +129,29 @@ func releaseSession(ortApi *C.OrtApi, sessionOptions *C.OrtSessionOptions, sessi
 	}
 }
 
-func run(ortApi *C.OrtApi, session *C.OrtSession) {
-	C.run(ortApi, session)
+func createValue() (*Value, error) {
+	var ortValue *C.OrtValue = nil
+	errMsg := C.createTensorWithDataAsOrtValue(gApi.ortApi, gApi.ortMemoryInfo, &ortValue)
+	if errMsg != nil {
+		return nil, newCStatusErr(errMsg)
+	}
+
+	return &Value{
+		ortValue: ortValue,
+	}, nil
+}
+
+func releaseValue(val *C.OrtValue) {
+	if val != nil {
+		C.releaseValue(gApi.ortApi, val)
+	}
+}
+
+func run(ortApi *C.OrtApi, session *C.OrtSession, ortMemotyInfo *C.OrtMemoryInfo, ortAllocatoy *C.OrtAllocator,
+	inputNames **C.char, inputNamesLen C.size_t, inputValue *C.OrtValue,
+	outputNames **C.char, outputNamesLen C.size_t,
+) {
+	C.run(ortApi, session, ortMemotyInfo, ortAllocatoy, inputNames, inputNamesLen, inputValue, outputNames, outputNamesLen)
 }
 
 // LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/src/onnxruntime/lib
