@@ -103,7 +103,7 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 			return nil, err
 		}
 
-		inputsInfo = append(inputsInfo, typeInfo)
+		inputsInfo[i] = typeInfo
 	}
 
 	var outputCount C.size_t
@@ -125,6 +125,7 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 		ortAllocator:      allocator,
 		inputCount:        uint64(inputCount),
 		inputNames:        inputNames,
+		inputTypesInfo:    inputsInfo,
 		outputCount:       uint64(outputCount),
 		outputNames:       outputNames,
 	}, nil

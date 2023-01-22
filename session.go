@@ -4,6 +4,7 @@ package falconnx
 	#include <onnxruntime_c_api.h>
 */
 import "C"
+import "fmt"
 
 type Session struct {
 	ortSession        *C.OrtSession
@@ -11,7 +12,7 @@ type Session struct {
 	ortAllocator      *C.OrtAllocator
 	inputCount        uint64
 	inputNames        []string
-	inputTypeInfo     []*TypeInfo
+	inputTypesInfo    []*TypeInfo
 	outputCount       uint64
 	outputNames       []string
 }
@@ -38,4 +39,12 @@ func (s *Session) Run(input *Value) error {
 	run(gApi.ortApi, s.ortSession, gApi.ortMemoryInfo, s.ortAllocator, inuputNames, C.ulong(s.inputCount), input.ortValue, outputNames, C.ulong(s.outputCount))
 
 	return nil
+}
+
+func (s *Session) String() string {
+	if s == nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%+v", *s)
 }

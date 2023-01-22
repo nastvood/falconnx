@@ -31,7 +31,7 @@ func process() {
 		log.Fatalf("create session: %v", err)
 	}
 
-	fmt.Printf("sessipn %#v\n", session)
+	fmt.Printf("session %s\n", session.String())
 
 	run(session, []float32{5.9, 3.0, 5.1, 1.8})
 }
