@@ -4,14 +4,20 @@ package falconnx
 	#include <onnxruntime_c_api.h>
 */
 import "C"
-import "runtime"
+import (
+	"runtime"
+)
 
-type Env C.OrtEnv
+type Env struct {
+	ortEnv *C.OrtEnv
+}
 
 func CreateEnv() (*Env, error) {
 	env, err := createEnv()
 	if err == nil {
-		runtime.SetFinalizer(env, func(env *Env) { env.release() })
+		runtime.SetFinalizer(env, func(env *Env) {
+			env.release()
+		})
 	}
 
 	return env, err
@@ -22,7 +28,7 @@ func (env *Env) release() {
 		return
 	}
 
-	releaseEnv(gApi.ortApi, env)
+	releaseEnv(env)
 	env = nil
 }
 
@@ -33,7 +39,9 @@ func (env *Env) CreateSession(modelPath string) (*Session, error) {
 
 	session, err := createSession(env, modelPath)
 	if err == nil {
-		runtime.SetFinalizer(session, func(session *Session) { session.release() })
+		runtime.SetFinalizer(session, func(session *Session) {
+			session.release()
+		})
 	}
 
 	return session, err

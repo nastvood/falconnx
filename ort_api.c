@@ -98,14 +98,9 @@ static char *getOutputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocat
     return NULL;
 }
 
-static char *getInputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **typeInfo)
+static char *getInputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **type_info)
 {
-    ORT_RETURN_ON_ERROR(g_ort->SessionGetInputTypeInfo(session, index, typeInfo));
-}
-
-static char *getOnnxTypeFromTypeInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, enum ONNXType *out)
-{
-    ORT_RETURN_ON_ERROR(g_ort->GetOnnxTypeFromTypeInfo(typeInfo, out));
+    ORT_RETURN_ON_ERROR(g_ort->SessionGetInputTypeInfo(session, index, type_info));
 }
 
 static void releaseSession(const OrtApi *g_ort, OrtSession *session)

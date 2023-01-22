@@ -10,7 +10,7 @@ type Value struct {
 	ortValue *C.OrtValue
 }
 
-func CreateFloatTensor(input []float64) (*Value, error) {
+func CreateFloatTensor(input []float32) (*Value, error) {
 	val, err := createFloatTensor(input)
 	if err == nil {
 		runtime.SetFinalizer(val, func(val *Value) { val.Release() })

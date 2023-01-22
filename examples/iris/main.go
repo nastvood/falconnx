@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
+	"runtime"
+	"time"
 
 	"github.com/nastvood/falconnx"
 )
 
-func run(session *falconnx.Session, input []float64) error {
+func run(session *falconnx.Session, input []float32) error {
 	inputTensor, err := falconnx.CreateFloatTensor(input)
 	if err != nil {
 		return err
@@ -18,7 +20,7 @@ func run(session *falconnx.Session, input []float64) error {
 	return nil
 }
 
-func main() {
+func process() {
 	env, err := falconnx.CreateEnv()
 	if err != nil {
 		log.Fatalf("create env: %v", err)
@@ -31,6 +33,13 @@ func main() {
 
 	fmt.Printf("sessipn %#v\n", session)
 
-	run(session, []float64{5.9, 3.0, 5.1, 1.8})
-	//run(session, []float64{5.6, 3.0, 4.1, 1.3})
+	run(session, []float32{5.9, 3.0, 5.1, 1.8})
+}
+
+func main() {
+	process()
+
+	// check finalizers
+	runtime.GC()
+	time.Sleep(5 * time.Millisecond)
 }

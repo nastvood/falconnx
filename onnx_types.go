@@ -8,49 +8,49 @@ import "C"
 type OnnxType int
 
 const (
-	onnxTypeUnknown OnnxType = iota
-	onnxTypeTensor
-	onnxTypeSequence
-	onnxTypeMap
-	onnxTypeOpaque
-	onnxTypeSparseTensor
-	onnxTypeOptional
+	OnnxTypeUnknown OnnxType = iota
+	OnnxTypeTensor
+	OnnxTypeSequence
+	OnnxTypeMap
+	OnnxTypeOpaque
+	OnnxTypeSparseTensor
+	OnnxTypeOptional
 )
 
-func OnnxTypeFromC(t uint32) OnnxType {
+func OnnxTypeFromC(t C.enum_ONNXType) OnnxType {
 	switch t {
 	case C.ONNX_TYPE_TENSOR:
-		return onnxTypeTensor
+		return OnnxTypeTensor
 	case C.ONNX_TYPE_SEQUENCE:
-		return onnxTypeSequence
+		return OnnxTypeSequence
 	case C.ONNX_TYPE_MAP:
-		return onnxTypeMap
+		return OnnxTypeMap
 	case C.ONNX_TYPE_OPAQUE:
-		return onnxTypeOpaque
+		return OnnxTypeOpaque
 	case C.ONNX_TYPE_SPARSETENSOR:
-		return onnxTypeSparseTensor
+		return OnnxTypeSparseTensor
 	case C.ONNX_TYPE_OPTIONAL:
-		return onnxTypeOptional
+		return OnnxTypeOptional
 	}
 
-	return onnxTypeUnknown
+	return OnnxTypeUnknown
 }
 
 func (t OnnxType) String() string {
 	switch t {
-	case onnxTypeTensor:
-		return "onnxTypeTensor"
-	case onnxTypeSequence:
-		return "onnxTypeSequence"
-	case onnxTypeMap:
-		return "onnxTypeMap"
-	case onnxTypeOpaque:
-		return "onnxTypeOpaque"
-	case onnxTypeSparseTensor:
-		return "onnxTypeSparseTensor"
-	case onnxTypeOptional:
-		return "onnxTypeOptional"
+	case OnnxTypeTensor:
+		return "Tensor"
+	case OnnxTypeSequence:
+		return "Sequence"
+	case OnnxTypeMap:
+		return "Map"
+	case OnnxTypeOpaque:
+		return "Opaque"
+	case OnnxTypeSparseTensor:
+		return "SparseTensor"
+	case OnnxTypeOptional:
+		return "Optional"
 	}
 
-	return "onnxTypeUnknown"
+	return "Unknown"
 }
