@@ -11,11 +11,12 @@ type Session struct {
 	ortAllocator      *C.OrtAllocator
 	inputCount        uint64
 	inputNames        []string
+	inputTypeInfo     []*TypeInfo
 	outputCount       uint64
 	outputNames       []string
 }
 
-func (s *Session) Release() {
+func (s *Session) release() {
 	if s == nil {
 		return
 	}
@@ -23,7 +24,7 @@ func (s *Session) Release() {
 	releaseSession(gApi.ortApi, s.ortSessionOptions, s.ortSession, s.ortAllocator)
 }
 
-func (s *Session) Run() error {
+func (s *Session) Run(input *Value) error {
 	if s == nil {
 		return nil
 	}
@@ -34,13 +35,7 @@ func (s *Session) Run() error {
 	outputNames, outputNamesRelease := stringsToCharCharArray(s.outputNames)
 	defer outputNamesRelease()
 
-	val, err := CreateValue()
-	if err != nil {
-		return err
-	}
-	defer val.Release()
-
-	run(gApi.ortApi, s.ortSession, gApi.ortMemoryInfo, s.ortAllocator, inuputNames, C.ulong(s.inputCount), val.ortValue, outputNames, C.ulong(s.outputCount))
+	run(gApi.ortApi, s.ortSession, gApi.ortMemoryInfo, s.ortAllocator, inuputNames, C.ulong(s.inputCount), input.ortValue, outputNames, C.ulong(s.outputCount))
 
 	return nil
 }

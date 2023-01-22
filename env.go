@@ -4,14 +4,20 @@ package falconnx
 	#include <onnxruntime_c_api.h>
 */
 import "C"
+import "runtime"
 
 type Env C.OrtEnv
 
 func CreateEnv() (*Env, error) {
-	return createEnv()
+	env, err := createEnv()
+	if err == nil {
+		runtime.SetFinalizer(env, func(env *Env) { env.release() })
+	}
+
+	return env, err
 }
 
-func (env *Env) Release() {
+func (env *Env) release() {
 	if env == nil {
 		return
 	}
@@ -25,5 +31,10 @@ func (env *Env) CreateSession(modelPath string) (*Session, error) {
 		return nil, nil
 	}
 
-	return createSession(env, modelPath)
+	session, err := createSession(env, modelPath)
+	if err == nil {
+		runtime.SetFinalizer(session, func(session *Session) { session.release() })
+	}
+
+	return session, err
 }

@@ -9,6 +9,7 @@ import (
 )
 
 var pSize = C.size_t(unsafe.Sizeof(uintptr(0)))
+var floatSize = C.size_t(unsafe.Sizeof(float64(0)))
 
 func stringsToCharCharArray(strs []string) (**C.char, func()) {
 	lenStrs := len(strs)
@@ -31,4 +32,17 @@ func stringsToCharCharArray(strs []string) (**C.char, func()) {
 	}
 
 	return (**C.char)(res), release
+}
+
+func floatsToFloatArray(vals []float64) *C.float {
+	lenVals := len(vals)
+	res := C.calloc(C.size_t(lenVals), floatSize)
+
+	goArr := (*[1<<30 - 1]C.float)(res)
+
+	for i, v := range vals {
+		goArr[i] = C.float(v)
+	}
+
+	return (*C.float)(res)
 }

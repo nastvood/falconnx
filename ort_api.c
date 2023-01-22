@@ -98,6 +98,16 @@ static char *getOutputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocat
     return NULL;
 }
 
+static char *getInputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **typeInfo)
+{
+    ORT_RETURN_ON_ERROR(g_ort->SessionGetInputTypeInfo(session, index, typeInfo));
+}
+
+static char *getOnnxTypeFromTypeInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, enum ONNXType *out)
+{
+    ORT_RETURN_ON_ERROR(g_ort->GetOnnxTypeFromTypeInfo(typeInfo, out));
+}
+
 static void releaseSession(const OrtApi *g_ort, OrtSession *session)
 {
     g_ort->ReleaseSession(session);
@@ -128,16 +138,14 @@ static void releaseAllocatorArrayOfString(OrtAllocator *allocator, size_t size, 
     allocator->Free(allocator, (strings));
 }
 
-static char *createTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, OrtValue **input_tensor)
+static char *createFloatTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, float *input, size_t input_len, OrtValue **input_tensor)
 {
-
-    float model_input[] = {5.9f, 3.0f, 5.1f, 1.8f};
-    const size_t model_input_len = 4 * sizeof(float);
+    const size_t model_input_len = input_len * sizeof(float);
 
     const int64_t input_shape[] = {1, 4};
     const size_t input_shape_len = sizeof(input_shape) / sizeof(input_shape[0]);
 
-    ORT_RETURN_ON_ERROR(g_ort->CreateTensorWithDataAsOrtValue(memory_info, model_input, model_input_len, input_shape, input_shape_len, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, input_tensor));
+    ORT_RETURN_ON_ERROR(g_ort->CreateTensorWithDataAsOrtValue(memory_info, input, model_input_len, input_shape, input_shape_len, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, input_tensor));
 
     return NULL;
 }
@@ -152,6 +160,16 @@ static char *run(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory
     //{
     //     printf("----%ld %s\n", i, output_names[i]);
     // }
+
+    for (size_t i = 0; i < input_names_len; i++)
+    {
+        OrtTypeInfo *typeInfo = NULL;
+        ORT_RETURN_ON_ERROR(g_ort->SessionGetInputTypeInfo(session, i, &typeInfo));
+        char *denotation = NULL;
+        size_t len = 0;
+        ORT_RETURN_ON_ERROR(g_ort->GetDenotationFromTypeInfo(typeInfo, (const char **const)&denotation, &len));
+        printf("----%ld [%s]\n", i, denotation);
+    }
 
     // float model_input[] = {5.9f, 3.0f, 5.1f, 1.8f};
     // const size_t model_input_len = 4 * sizeof(float);

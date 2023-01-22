@@ -9,6 +9,7 @@ package falconnx
 */
 import "C"
 import (
+	"fmt"
 	"log"
 	"unsafe"
 )
@@ -37,7 +38,7 @@ func init() {
 }
 
 func createEnv() (*Env, error) {
-	var env *C.OrtEnv = nil
+	var env *C.OrtEnv
 	errMsg := C.createEnv(gApi.ortApi, &env)
 	if errMsg != nil {
 		err := newCStatusErr(errMsg)
@@ -65,14 +66,14 @@ func allocatorGoStrings(alloocator *C.OrtAllocator, argc C.size_t, argv **C.char
 }
 
 func createSession(env *Env, modelPath string) (*Session, error) {
-	var sessionOptions *C.OrtSessionOptions = nil
-	var session *C.OrtSession = nil
+	var sessionOptions *C.OrtSessionOptions
+	var session *C.OrtSession
 	errMsg := C.createSession(gApi.ortApi, (*C.OrtEnv)(env), &sessionOptions, &session, C.CString(modelPath))
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
 
-	var allocator *C.OrtAllocator = nil
+	var allocator *C.OrtAllocator
 	errMsg = C.createAllocator(gApi.ortApi, session, gApi.ortMemoryInfo, &allocator)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
@@ -84,12 +85,41 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 		return nil, newCStatusErr(errMsg)
 	}
 
-	var pInputNames **C.char = nil
+	var pInputNames **C.char
 	errMsg = C.getInputNames(gApi.ortApi, session, allocator, inputCount, &pInputNames)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
 	inputNames := allocatorGoStrings(allocator, inputCount, pInputNames)
+
+	inputsInfo := make([]*TypeInfo, inputCount)
+	for i := 0; i < int(inputCount); i++ {
+		var info *C.OrtTypeInfo
+		errMsg = C.getInputInfo(gApi.ortApi, session, C.ulong(i), &info)
+		if errMsg != nil {
+			return nil, newCStatusErr(errMsg)
+		}
+
+		var ortONNXType uint32
+		errMsg = C.getOnnxTypeFromTypeInfo(gApi.ortApi, info, &ortONNXType)
+		if errMsg != nil {
+			return nil, newCStatusErr(errMsg)
+		}
+
+		fmt.Printf("%#v\n", TypeInfo{
+			ortTypeInfo: info,
+			ortONNXType: ortONNXType,
+
+			onnxType: OnnxTypeFromC(ortONNXType),
+		})
+
+		inputsInfo = append(inputsInfo, &TypeInfo{
+			ortTypeInfo: info,
+			ortONNXType: ortONNXType,
+
+			onnxType: OnnxTypeFromC(ortONNXType),
+		})
+	}
 
 	var outputCount C.size_t
 	errMsg = C.getOutputCount(gApi.ortApi, session, &outputCount)
@@ -129,9 +159,11 @@ func releaseSession(ortApi *C.OrtApi, sessionOptions *C.OrtSessionOptions, sessi
 	}
 }
 
-func createValue() (*Value, error) {
+func createFloatTensor(input []float64) (*Value, error) {
+	inputCFloats := floatsToFloatArray(input)
+
 	var ortValue *C.OrtValue = nil
-	errMsg := C.createTensorWithDataAsOrtValue(gApi.ortApi, gApi.ortMemoryInfo, &ortValue)
+	errMsg := C.createFloatTensorWithDataAsOrtValue(gApi.ortApi, gApi.ortMemoryInfo, inputCFloats, C.ulong(len(input)), &ortValue)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
