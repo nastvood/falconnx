@@ -135,51 +135,22 @@ static void releaseAllocatorArrayOfString(OrtAllocator *allocator, size_t size, 
     allocator->Free(allocator, (strings));
 }
 
-static char *createFloatTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, float *input, size_t input_len, OrtValue **input_tensor)
+static char *createFloatTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, float *input, size_t input_len, int64_t *shape, size_t shape_len, OrtValue **input_tensor)
 {
     const size_t model_input_len = input_len * sizeof(float);
 
-    const int64_t input_shape[] = {1, 4};
-    const size_t input_shape_len = sizeof(input_shape) / sizeof(input_shape[0]);
-
-    ORT_RETURN_ON_ERROR(g_ort->CreateTensorWithDataAsOrtValue(memory_info, input, model_input_len, input_shape, input_shape_len, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, input_tensor));
+    ORT_RETURN_ON_ERROR(g_ort->CreateTensorWithDataAsOrtValue(memory_info, input, model_input_len, shape, shape_len, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, input_tensor));
 
     return NULL;
 }
 
-static char *run(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory_info, OrtAllocator *allocator, char **input_names, size_t input_names_len, OrtValue *input_value, char **output_names, size_t output_names_len)
+static char *run(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory_info, OrtAllocator *allocator,
+                 char **input_names, size_t input_names_len, OrtValue *input_value,
+                 char **output_names, size_t output_names_len, OrtValue **outputs)
 {
-    // for (size_t i = 0; i < input_names_len; i++)
-    //{
-    //     printf("---- %s\n", input_names[i]);
-    // }
-    // for (size_t i = 0; i < output_names_len; i++)
-    //{
-    //     printf("----%ld %s\n", i, output_names[i]);
-    // }
-
-    for (size_t i = 0; i < input_names_len; i++)
-    {
-        OrtTypeInfo *typeInfo = NULL;
-        ORT_RETURN_ON_ERROR(g_ort->SessionGetInputTypeInfo(session, i, &typeInfo));
-        char *denotation = NULL;
-        size_t len = 0;
-        ORT_RETURN_ON_ERROR(g_ort->GetDenotationFromTypeInfo(typeInfo, (const char **const)&denotation, &len));
-        printf("----%ld [%s]\n", i, denotation);
-    }
-
-    // float model_input[] = {5.9f, 3.0f, 5.1f, 1.8f};
-    // const size_t model_input_len = 4 * sizeof(float);
-
-    // const int64_t input_shape[] = {1, 4};
-    // const size_t input_shape_len = sizeof(input_shape) / sizeof(input_shape[0]);
-
-    // OrtValue *input_tensor = NULL;
-    // ORT_RETURN_ON_ERROR(g_ort->CreateTensorWithDataAsOrtValue(memory_info, model_input, model_input_len, input_shape, input_shape_len, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, &input_tensor));
-
-    OrtValue **output_tensor = (OrtValue **)calloc(output_names_len, sizeof(OrtValue *));
-    // allocate and set values separately
-    ORT_RETURN_ON_ERROR(g_ort->Run(session, NULL, (const char *const *)input_names, (const OrtValue *const *)&input_value, input_names_len, (const char *const *)output_names, output_names_len, output_tensor));
+    // OrtValue **output_tensor = (OrtValue **)calloc(output_names_len, sizeof(OrtValue *));
+    //  allocate and set values separately
+    ORT_RETURN_ON_ERROR(g_ort->Run(session, NULL, (const char *const *)input_names, (const OrtValue *const *)&input_value, input_names_len, (const char *const *)output_names, output_names_len, outputs));
 
     for (size_t i = 0; i < output_names_len; i++)
     {
@@ -187,19 +158,19 @@ static char *run(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory
         printf("\n%ld\n", i);
 
         int is_tensort = 0;
-        ORT_RETURN_ON_ERROR(g_ort->IsTensor(output_tensor[i], &is_tensort));
+        ORT_RETURN_ON_ERROR(g_ort->IsTensor(outputs[i], &is_tensort));
         // printf("is tensor %d %ld\n", is_tensort, i);
 
         if (is_tensort == 1)
         {
             int64_t *output_data = NULL;
-            ORT_RETURN_ON_ERROR(g_ort->GetTensorMutableData(output_tensor[i], (void *)&output_data));
+            ORT_RETURN_ON_ERROR(g_ort->GetTensorMutableData(outputs[i], (void *)&output_data));
             printf("value %ld\n", output_data[0]);
         }
         else
         {
             OrtValue *inner_value = NULL;
-            ORT_RETURN_ON_ERROR(g_ort->GetValue(output_tensor[i], 0, allocator, &inner_value));
+            ORT_RETURN_ON_ERROR(g_ort->GetValue(outputs[i], 0, allocator, &inner_value));
 
             size_t value_count;
             ORT_RETURN_ON_ERROR(g_ort->GetValueCount(inner_value, &value_count));

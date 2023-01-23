@@ -10,14 +10,29 @@ import (
 )
 
 func run(session *falconnx.Session, input []float32) error {
-	inputTensor, err := falconnx.CreateFloatTensor(input)
+	info := session.InputTypesInfo[0].TensorInfo
+
+	inputTensor, err := falconnx.CreateFloatTensor(input, info.Dimensions)
 	if err != nil {
 		return err
 	}
 
-	session.Run(inputTensor)
+	outputs, err := session.Run(inputTensor)
+	if err != nil {
+		return err
+	}
 
-	return nil
+	_, err = outputs[0].GetTypeInfo()
+	if err != nil {
+		return err
+	}
+
+	_, err = outputs[1].GetTypeInfo()
+	if err != nil {
+		return err
+	}
+
+	return err
 }
 
 func process() {
@@ -33,7 +48,11 @@ func process() {
 
 	fmt.Printf("session %s\n", session.String())
 
-	run(session, []float32{5.9, 3.0, 5.1, 1.8})
+	err = run(session, []float32{5.9, 3.0, 5.1, 1.8})
+	if err != nil {
+		log.Fatalf("run: %v", err)
+	}
+
 }
 
 func main() {

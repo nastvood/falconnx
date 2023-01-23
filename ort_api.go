@@ -124,20 +124,20 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 		ortSessionOptions: sessionOptions,
 		ortAllocator:      allocator,
 		inputCount:        uint64(inputCount),
-		inputNames:        inputNames,
-		inputTypesInfo:    inputsInfo,
+		InputNames:        inputNames,
+		InputTypesInfo:    inputsInfo,
 		outputCount:       uint64(outputCount),
-		outputNames:       outputNames,
+		OutputNames:       outputNames,
 	}, nil
 }
 
-func createFloatTensor(input []float32) (*Value, error) {
+func createFloatTensor(input []float32, shape []int64) (*Value, error) {
 	if len(input) == 0 {
 		return nil, errors.New("the input is empty")
 	}
 
 	var ortValue *C.OrtValue = nil
-	errMsg := C.createFloatTensorWithDataAsOrtValue(gApi.ortApi, gApi.ortMemoryInfo, (*C.float)(&input[0]), C.ulong(len(input)), &ortValue)
+	errMsg := C.createFloatTensorWithDataAsOrtValue(gApi.ortApi, gApi.ortMemoryInfo, (*C.float)(&input[0]), C.ulong(len(input)), (*C.int64_t)(&shape[0]), C.size_t(len(shape)), &ortValue)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -150,8 +150,14 @@ func createFloatTensor(input []float32) (*Value, error) {
 func run(ortApi *C.OrtApi, session *C.OrtSession, ortMemotyInfo *C.OrtMemoryInfo, ortAllocatoy *C.OrtAllocator,
 	inputNames **C.char, inputNamesLen C.size_t, inputValue *C.OrtValue,
 	outputNames **C.char, outputNamesLen C.size_t,
-) {
-	C.run(ortApi, session, ortMemotyInfo, ortAllocatoy, inputNames, inputNamesLen, inputValue, outputNames, outputNamesLen)
+	outputs **C.OrtValue,
+) error {
+	errMsg := C.run(ortApi, session, ortMemotyInfo, ortAllocatoy, inputNames, inputNamesLen, inputValue, outputNames, outputNamesLen, outputs)
+	if errMsg != nil {
+		return newCStatusErr(errMsg)
+	}
+
+	return nil
 }
 
 func releaseEnv(env *Env) {

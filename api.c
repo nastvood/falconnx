@@ -55,6 +55,13 @@ char *getDimensions(const OrtApi *g_ort, const OrtTensorTypeAndShapeInfo *info, 
 
     return NULL;
 }
+
+char *getTypeInfo(const OrtApi *g_ort, const OrtValue *value, OrtTypeInfo **out)
+{
+    ORT_RETURN_ON_ERROR(g_ort->GetTypeInfo(value, out));
+
+    return NULL;
+}
 // --------------------- RELEASES ------------------------------
 
 void releaseTypeInfo(const OrtApi *g_ort, OrtTypeInfo *type_info)
