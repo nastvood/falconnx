@@ -12,6 +12,8 @@ import (
 func run(session *falconnx.Session, input []float32) error {
 	info := session.InputTypesInfo[0].TensorInfo
 
+	fmt.Printf("input[0]: %s\n", info)
+
 	inputTensor, err := falconnx.CreateFloatTensor(input, info.Dimensions)
 	if err != nil {
 		return err
@@ -22,14 +24,13 @@ func run(session *falconnx.Session, input []float32) error {
 		return err
 	}
 
-	_, err = outputs[0].GetTypeInfo()
-	if err != nil {
-		return err
-	}
+	for i := range outputs {
+		ti, err := outputs[i].GetTypeInfo()
+		if err != nil {
+			return err
+		}
 
-	_, err = outputs[1].GetTypeInfo()
-	if err != nil {
-		return err
+		fmt.Printf("output[%d]: %s\n", i, ti)
 	}
 
 	return err

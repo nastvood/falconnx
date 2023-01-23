@@ -62,6 +62,28 @@ char *getTypeInfo(const OrtApi *g_ort, const OrtValue *value, OrtTypeInfo **out)
 
     return NULL;
 }
+
+char *getSequenceElementType(const OrtApi *g_ort, const OrtSequenceTypeInfo *sequence_type_info, OrtTypeInfo **out)
+{
+    ORT_RETURN_ON_ERROR(g_ort->GetSequenceElementType(sequence_type_info, out));
+
+    return NULL;
+}
+
+char *getMapKeyType(const OrtApi *g_ort, const OrtMapTypeInfo *map_type_info, enum ONNXTensorElementDataType *out)
+{
+    ORT_RETURN_ON_ERROR(g_ort->GetMapKeyType(map_type_info, out));
+
+    return NULL;
+}
+
+char *getMapValueType(const OrtApi *g_ort, const OrtMapTypeInfo *map_type_info, OrtTypeInfo **out)
+{
+    ORT_RETURN_ON_ERROR(g_ort->GetMapValueType(map_type_info, out));
+
+    return NULL;
+}
+
 // --------------------- RELEASES ------------------------------
 
 void releaseTypeInfo(const OrtApi *g_ort, OrtTypeInfo *type_info)
@@ -72,4 +94,14 @@ void releaseTypeInfo(const OrtApi *g_ort, OrtTypeInfo *type_info)
 void releaseTensorTypeInfo(const OrtApi *g_ort, OrtTensorTypeAndShapeInfo *info)
 {
     g_ort->ReleaseTensorTypeAndShapeInfo(info);
+}
+
+void releaseSequenceTypeInfo(const OrtApi *g_ort, OrtSequenceTypeInfo *info)
+{
+    g_ort->ReleaseSequenceTypeInfo(info);
+}
+
+void releaseMapTypeInfo(const OrtApi *g_ort, OrtMapTypeInfo *info)
+{
+    g_ort->ReleaseMapTypeInfo(info);
 }
