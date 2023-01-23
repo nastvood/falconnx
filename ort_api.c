@@ -101,6 +101,8 @@ static char *getOutputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocat
 static char *getInputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **type_info)
 {
     ORT_RETURN_ON_ERROR(g_ort->SessionGetInputTypeInfo(session, index, type_info));
+
+    return NULL;
 }
 
 static void releaseSession(const OrtApi *g_ort, OrtSession *session)

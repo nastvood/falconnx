@@ -103,7 +103,7 @@ func (t *TensorInfo) String() string {
 		return ""
 	}
 
-	return fmt.Sprintf("%+v", *t)
+	return fmt.Sprintf("%s%v", t.ElementType, t.Dimensions)
 }
 
 func createTensorInfo(info *C.OrtTypeInfo) (*TensorInfo, error) {
@@ -132,7 +132,7 @@ func createTensorInfo(info *C.OrtTypeInfo) (*TensorInfo, error) {
 	}
 
 	dimensions := make([]int64, dimensionsCount)
-	errMsg = C.getDimensions(gApi.ortApi, ortTensorTypeAndShapeInfo, (*C.long)(&dimensions[0]), dimensionsCount)
+	errMsg = C.getDimensions(gApi.ortApi, ortTensorTypeAndShapeInfo, (*C.int64_t)(&dimensions[0]), dimensionsCount)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
