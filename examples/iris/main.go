@@ -53,7 +53,6 @@ func process() {
 	if err != nil {
 		log.Fatalf("run: %v", err)
 	}
-
 }
 
 func main() {

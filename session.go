@@ -1,7 +1,7 @@
 package falconnx
 
 /*
-	#include <onnxruntime_c_api.h>
+	#include "api.h"
 */
 import "C"
 import "fmt"
@@ -18,12 +18,90 @@ type Session struct {
 	OutputNames    []string
 }
 
+func createSession(env *Env, modelPath string) (*Session, error) {
+	var sessionOptions *C.OrtSessionOptions
+	var session *C.OrtSession
+	errMsg := C.createSession(gApi.ortApi, env.ortEnv, &sessionOptions, &session, C.CString(modelPath))
+	if errMsg != nil {
+		return nil, newCStatusErr(errMsg)
+	}
+
+	var allocator *C.OrtAllocator
+	errMsg = C.createAllocator(gApi.ortApi, session, gApi.ortMemoryInfo, &allocator)
+	if errMsg != nil {
+		return nil, newCStatusErr(errMsg)
+	}
+
+	var inputCount C.size_t
+	errMsg = C.getInputCount(gApi.ortApi, session, &inputCount)
+	if errMsg != nil {
+		return nil, newCStatusErr(errMsg)
+	}
+
+	var pInputNames **C.char
+	errMsg = C.getInputNames(gApi.ortApi, session, allocator, inputCount, &pInputNames)
+	if errMsg != nil {
+		return nil, newCStatusErr(errMsg)
+	}
+	inputNames := allocatorGoStrings(allocator, inputCount, pInputNames)
+
+	inputsInfo := make([]*TypeInfo, inputCount)
+	for i := 0; i < int(inputCount); i++ {
+		var info *C.OrtTypeInfo
+		errMsg = C.getInputInfo(gApi.ortApi, session, C.ulong(i), &info)
+		if errMsg != nil {
+			return nil, newCStatusErr(errMsg)
+		}
+
+		typeInfo, err := createTypeInfo(info)
+		if err != nil {
+			return nil, err
+		}
+
+		inputsInfo[i] = typeInfo
+	}
+
+	var outputCount C.size_t
+	errMsg = C.getOutputCount(gApi.ortApi, session, &outputCount)
+	if errMsg != nil {
+		return nil, newCStatusErr(errMsg)
+	}
+
+	var pOutputNames **C.char = nil
+	errMsg = C.getOutputNames(gApi.ortApi, session, allocator, outputCount, &pOutputNames)
+	if errMsg != nil {
+		return nil, newCStatusErr(errMsg)
+	}
+	outputNames := allocatorGoStrings(allocator, outputCount, pOutputNames)
+
+	return &Session{
+		ortSession:        session,
+		ortSessionOptions: sessionOptions,
+		ortAllocator:      allocator,
+		inputCount:        uint64(inputCount),
+		InputNames:        inputNames,
+		InputTypesInfo:    inputsInfo,
+		outputCount:       uint64(outputCount),
+		OutputNames:       outputNames,
+	}, nil
+}
+
 func (s *Session) release() {
 	if s == nil {
 		return
 	}
 
-	releaseSession(gApi.ortApi, s.ortSessionOptions, s.ortSession, s.ortAllocator)
+	if s.ortSessionOptions != nil {
+		C.releaseSessionOptions(gApi.ortApi, s.ortSessionOptions)
+	}
+
+	if s.ortAllocator != nil {
+		C.releaseAllocator(gApi.ortApi, s.ortAllocator)
+	}
+
+	if s.ortSession != nil {
+		C.releaseSession(gApi.ortApi, s.ortSession)
+	}
 }
 
 func (s *Session) Run(input *Value) ([]*Value, error) {

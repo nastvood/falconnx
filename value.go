@@ -68,3 +68,9 @@ func (v *Value) release() {
 		releaseValue(v.ortValue)
 	}
 }
+
+func releaseValue(val *C.OrtValue) {
+	if val != nil {
+		C.releaseValue(gApi.ortApi, val)
+	}
+}

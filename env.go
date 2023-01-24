@@ -1,7 +1,7 @@
 package falconnx
 
 /*
-	#include <onnxruntime_c_api.h>
+	#include "api.h"
 */
 import "C"
 import (
@@ -13,14 +13,22 @@ type Env struct {
 }
 
 func CreateEnv() (*Env, error) {
-	env, err := createEnv()
-	if err == nil {
-		runtime.SetFinalizer(env, func(env *Env) {
-			env.release()
-		})
+	var ortEnv *C.OrtEnv
+	errMsg := C.createEnv(gApi.ortApi, &ortEnv)
+	if errMsg != nil {
+		err := newCStatusErr(errMsg)
+		return nil, err
 	}
 
-	return env, err
+	env := &Env{
+		ortEnv: ortEnv,
+	}
+
+	runtime.SetFinalizer(env, func(env *Env) {
+		env.release()
+	})
+
+	return env, nil
 }
 
 func (env *Env) release() {
@@ -28,8 +36,7 @@ func (env *Env) release() {
 		return
 	}
 
-	releaseEnv(env)
-	env = nil
+	C.releaseEnv(gApi.ortApi, env.ortEnv)
 }
 
 func (env *Env) CreateSession(modelPath string) (*Session, error) {

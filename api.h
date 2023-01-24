@@ -18,6 +18,18 @@
         }                                                           \
     } while (0);
 
+const OrtApi *createApi();
+char *createMemoryInfo(const OrtApi *g_ort, OrtMemoryInfo **memory_info);
+char *createEnv(const OrtApi *g_ort, OrtEnv **env);
+char *createSession(const OrtApi *g_ort, OrtEnv *env, OrtSessionOptions **session_options, OrtSession **session, const char *model_path);
+char *createAllocator(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory_info, OrtAllocator **allocator);
+
+char *getInputCount(const OrtApi *g_ort, OrtSession *session, size_t *input_count);
+char *getInputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *allocator, size_t input_count, char ***out);
+char *getOutputCount(const OrtApi *g_ort, OrtSession *session, size_t *output_count);
+char *getOutputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *allocator, size_t output_count, char ***out);
+char *getInputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **type_info);
+
 char *getOnnxTypeFromTypeInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, enum ONNXType *out);
 char *getTypeInfo(const OrtApi *g_ort, const OrtValue *value, OrtTypeInfo **out);
 
@@ -35,7 +47,13 @@ char *castTypeInfoToTensorInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, const
 char *castTypeInfoToSequenceTypeInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, const OrtSequenceTypeInfo **out);
 char *castTypeInfoToMapTypeInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, const OrtMapTypeInfo **out);
 
+void releaseEnv(const OrtApi *g_ort, OrtEnv *env);
+void releaseMapTypeInfo(const OrtApi *g_ort, OrtMapTypeInfo *info);
+void releaseSession(const OrtApi *g_ort, OrtSession *session);
+void releaseSessionOptions(const OrtApi *g_ort, OrtSessionOptions *sessionOptions);
+void releaseAllocator(const OrtApi *g_ort, OrtAllocator *allocator);
+void releaseMemoryInfo(const OrtApi *g_ort, OrtMemoryInfo *memory_info);
 void releaseTypeInfo(const OrtApi *g_ort, OrtTypeInfo *type_info);
 void releaseTensorTypeInfo(const OrtApi *g_ort, OrtTensorTypeAndShapeInfo *info);
 void releaseSequenceTypeInfo(const OrtApi *g_ort, OrtSequenceTypeInfo *info);
-void releaseMapTypeInfo(const OrtApi *g_ort, OrtMapTypeInfo *info);
+void releaseValue(const OrtApi *g_ort, OrtValue *value);

@@ -1,7 +1,6 @@
 package falconnx
 
 /*
-	#include <onnxruntime_c_api.h>
 	#include "api.h"
 */
 import "C"
