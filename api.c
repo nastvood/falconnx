@@ -1,5 +1,7 @@
 #include "api.h"
 
+// --------------------- GET ------------------------------
+
 const OrtApi *createApi()
 {
     const OrtApi *g_ort = NULL;
@@ -37,7 +39,16 @@ char *createAllocator(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *m
     return NULL;
 }
 
-// --------------------- CREATE ------------------------------
+char *createFloatTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, float *input, size_t input_len, int64_t *shape, size_t shape_len, OrtValue **out)
+{
+    const size_t model_input_len = input_len * sizeof(float);
+
+    ORT_RETURN_ON_ERROR(g_ort->CreateTensorWithDataAsOrtValue(memory_info, input, model_input_len, shape, shape_len, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, out));
+
+    return NULL;
+}
+
+// --------------------- GET ------------------------------
 
 char *getInputCount(const OrtApi *g_ort, OrtSession *session, size_t *input_count)
 {
@@ -250,6 +261,16 @@ void releaseMapTypeInfo(const OrtApi *g_ort, OrtMapTypeInfo *info)
 void releaseValue(const OrtApi *g_ort, OrtValue *value)
 {
     g_ort->ReleaseValue(value);
+}
+
+void releaseAllocatorArrayOfString(OrtAllocator *allocator, size_t size, char **strings)
+{
+    for (size_t i = 0; i < size; i++)
+    {
+        allocator->Free(allocator, strings[i]);
+    }
+
+    allocator->Free(allocator, (strings));
 }
 
 // --------------------- RUN ------------------------------

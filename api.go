@@ -1,6 +1,10 @@
 package falconnx
 
 /*
+	#cgo CFLAGS: -I${SRCDIR}/onnxruntime/include -Wreturn-type
+	#cgo linux LDFLAGS: -L${SRCDIR}/onnxruntime/linux_x64 -lonnxruntime
+	#cgo arm64 LDFLAGS: -L${SRCDIR}/onnxruntime/osx_arm64 -lonnxruntime
+
 	#include <onnxruntime_c_api.h>
 	#include "api.h"
 */
@@ -28,3 +32,5 @@ func init() {
 		ortMemoryInfo: ortMemoryInfo,
 	}
 }
+
+// LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/src/onnxruntime/lib && export LD_LIBRARY_PATH

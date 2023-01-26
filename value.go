@@ -164,3 +164,19 @@ func GetSeqMapData[K, V ONNXTypeEl](v *Value, allocator *Allocator) (map[K]V, er
 
 	return GetMapData[K, V](mapValue, allocator)
 }
+
+func createFloatTensor(input []float32, shape []int64) (*Value, error) {
+	if len(input) == 0 {
+		return nil, errors.New("the input is empty")
+	}
+
+	var ortValue *C.OrtValue = nil
+	errMsg := C.createFloatTensorWithDataAsOrtValue(gApi.ortApi, gApi.ortMemoryInfo, (*C.float)(&input[0]), C.ulong(len(input)), (*C.int64_t)(&shape[0]), C.size_t(len(shape)), &ortValue)
+	if errMsg != nil {
+		return nil, newCStatusErr(errMsg)
+	}
+
+	return &Value{
+		ortValue: ortValue,
+	}, nil
+}

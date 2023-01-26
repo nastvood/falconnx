@@ -2,6 +2,7 @@ package falconnx
 
 /*
 	#include <stdlib.h>
+	#include "api.h"
 */
 import "C"
 import (
@@ -44,4 +45,17 @@ func floatsToFloatArray(vals []float32) *C.float {
 	}
 
 	return (*C.float)(res)
+}
+
+func allocatorGoStrings(alloocator *C.OrtAllocator, argc C.size_t, argv **C.char) []string {
+	length := int(argc)
+	tmpslice := (*[1 << 30]*C.char)(unsafe.Pointer(argv))[:length:length]
+	gostrings := make([]string, length)
+	for i, s := range tmpslice {
+		gostrings[i] = C.GoString(s)
+	}
+
+	C.releaseAllocatorArrayOfString(alloocator, argc, argv)
+
+	return gostrings
 }

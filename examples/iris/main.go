@@ -62,12 +62,14 @@ func process() {
 		fmt.Printf("output[%d]: %s\n", i, info.String())
 	}
 
+	t0 := time.Now()
 	res, err := run(session, []float32{5.9, 3.0, 5.1, 1.8})
 	if err != nil {
 		log.Fatalf("run: %v", err)
 	}
+	t1 := time.Now()
 
-	log.Printf("%+v\n", *res)
+	log.Printf("%+v %s\n", *res, t1.Sub(t0).String())
 }
 
 func main() {

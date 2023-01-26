@@ -23,6 +23,7 @@ char *createMemoryInfo(const OrtApi *g_ort, OrtMemoryInfo **memory_info);
 char *createEnv(const OrtApi *g_ort, OrtEnv **env);
 char *createSession(const OrtApi *g_ort, OrtEnv *env, OrtSessionOptions **session_options, OrtSession **session, const char *model_path);
 char *createAllocator(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory_info, OrtAllocator **allocator);
+char *createFloatTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, float *input, size_t input_len, int64_t *shape, size_t shape_len, OrtValue **out);
 
 char *getInputCount(const OrtApi *g_ort, OrtSession *session, size_t *input_count);
 char *getInputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *allocator, size_t input_count, char ***out);
@@ -62,6 +63,7 @@ void releaseTypeInfo(const OrtApi *g_ort, OrtTypeInfo *type_info);
 void releaseTensorTypeInfo(const OrtApi *g_ort, OrtTensorTypeAndShapeInfo *info);
 void releaseSequenceTypeInfo(const OrtApi *g_ort, OrtSequenceTypeInfo *info);
 void releaseValue(const OrtApi *g_ort, OrtValue *value);
+void releaseAllocatorArrayOfString(OrtAllocator *allocator, size_t size, char **strings);
 
 char *run(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory_info, OrtAllocator *allocator,
           char **input_names, size_t input_names_len, OrtValue *input_value,
