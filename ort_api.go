@@ -42,16 +42,4 @@ func createFloatTensor(input []float32, shape []int64) (*Value, error) {
 	}, nil
 }
 
-func run(ortApi *C.OrtApi, session *C.OrtSession, ortMemotyInfo *C.OrtMemoryInfo, ortAllocatoy *C.OrtAllocator,
-	inputNames **C.char, inputNamesLen C.size_t, inputValue *C.OrtValue,
-	outputNames **C.char, outputNamesLen C.size_t, outputs **C.OrtValue,
-) error {
-	errMsg := C.run(ortApi, session, ortMemotyInfo, ortAllocatoy, inputNames, inputNamesLen, inputValue, outputNames, outputNamesLen, outputs)
-	if errMsg != nil {
-		return newCStatusErr(errMsg)
-	}
-
-	return nil
-}
-
 // LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/src/onnxruntime/lib && export LD_LIBRARY_PATH

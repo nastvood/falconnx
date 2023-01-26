@@ -62,3 +62,7 @@ void releaseTypeInfo(const OrtApi *g_ort, OrtTypeInfo *type_info);
 void releaseTensorTypeInfo(const OrtApi *g_ort, OrtTensorTypeAndShapeInfo *info);
 void releaseSequenceTypeInfo(const OrtApi *g_ort, OrtSequenceTypeInfo *info);
 void releaseValue(const OrtApi *g_ort, OrtValue *value);
+
+char *run(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory_info, OrtAllocator *allocator,
+          char **input_names, size_t input_names_len, OrtValue *input_value,
+          char **output_names, size_t output_names_len, OrtValue **outputs);

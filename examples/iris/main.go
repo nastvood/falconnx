@@ -9,28 +9,36 @@ import (
 	"github.com/nastvood/falconnx"
 )
 
-func run(session *falconnx.Session, input []float32) error {
+type result struct {
+	Labels        []int64
+	Probabilities map[int64]float32
+}
+
+func run(session *falconnx.Session, input []float32) (*result, error) {
 	inputTensor, err := falconnx.CreateFloatTensor(input, session.InputTypesInfo[0].TensorInfo.Dimensions)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	outputs, err := session.Run(inputTensor)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	inputData, _ := falconnx.GetTensorData[float32](inputTensor, session.InputTypesInfo[0])
-	fmt.Printf("input data[0] %v\n", inputData)
+	labels, err := falconnx.GetTensorData[int64](outputs[0], session.OutputTypesInfo[0])
+	if err != nil {
+		return nil, err
+	}
 
-	labels, _ := falconnx.GetTensorData[int64](outputs[0], session.OutputTypesInfo[0])
-	fmt.Printf("labels %v\n", labels)
+	probabilities, err := falconnx.GetSeqMapData[int64, float32](outputs[1], session.Allocator)
+	if err != nil {
+		return nil, err
+	}
 
-	mapValue, _ := outputs[1].GetValue(session.Allocator, 0)
-	probabilities, _ := falconnx.GetMapData[int64, float32](mapValue, session.Allocator)
-	fmt.Printf("probabilities %v\n", probabilities)
-
-	return err
+	return &result{
+		Labels:        labels,
+		Probabilities: probabilities,
+	}, nil
 }
 
 func process() {
@@ -54,10 +62,12 @@ func process() {
 		fmt.Printf("output[%d]: %s\n", i, info.String())
 	}
 
-	err = run(session, []float32{5.9, 3.0, 5.1, 1.8})
+	res, err := run(session, []float32{5.9, 3.0, 5.1, 1.8})
 	if err != nil {
 		log.Fatalf("run: %v", err)
 	}
+
+	log.Printf("%+v\n", *res)
 }
 
 func main() {

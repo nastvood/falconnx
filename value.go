@@ -79,7 +79,7 @@ func (v *Value) GetValueCount() (int, error) {
 
 func (v *Value) GetValue(allocator *Allocator, index int) (*Value, error) {
 	var ortValue *C.OrtValue
-	errMsg := C.getValue(gApi.ortApi, allocator.OrtAllocator, v.ortValue, C.int(index), &ortValue)
+	errMsg := C.getValue(gApi.ortApi, allocator.GetOrtAllocator(), v.ortValue, C.int(index), &ortValue)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -154,4 +154,13 @@ func GetMapData[K, V ONNXTypeEl](v *Value, allocator *Allocator) (map[K]V, error
 	}
 
 	return res, nil
+}
+
+func GetSeqMapData[K, V ONNXTypeEl](v *Value, allocator *Allocator) (map[K]V, error) {
+	mapValue, err := v.GetValue(allocator, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	return GetMapData[K, V](mapValue, allocator)
 }

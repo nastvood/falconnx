@@ -20,10 +20,6 @@ type (
 		OutputNames     []string
 		OutputTypesInfo []*TypeInfo
 	}
-
-	Allocator struct {
-		OrtAllocator *C.OrtAllocator
-	}
 )
 
 func createSession(env *Env, modelPath string) (*Session, error) {
@@ -102,7 +98,7 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 		ortSession:        session,
 		ortSessionOptions: sessionOptions,
 		Allocator: &Allocator{
-			OrtAllocator: allocator,
+			ortAllocator: allocator,
 		},
 		inputCount:      uint64(inputCount),
 		InputNames:      inputNames,
@@ -122,8 +118,8 @@ func (s *Session) release() {
 		C.releaseSessionOptions(gApi.ortApi, s.ortSessionOptions)
 	}
 
-	if s.Allocator != nil && s.Allocator.OrtAllocator != nil {
-		C.releaseAllocator(gApi.ortApi, s.Allocator.OrtAllocator)
+	if s.Allocator != nil && s.Allocator.GetOrtAllocator() != nil {
+		C.releaseAllocator(gApi.ortApi, s.Allocator.GetOrtAllocator())
 	}
 
 	if s.ortSession != nil {
@@ -147,11 +143,11 @@ func (s *Session) Run(input *Value) ([]*Value, error) {
 	defer outputNamesRelease()
 
 	outputOrtValues := make([]*C.OrtValue, len(s.OutputNames))
-	err := run(
+	errMsg := C.run(
 		gApi.ortApi,
 		s.ortSession,
 		gApi.ortMemoryInfo,
-		s.Allocator.OrtAllocator,
+		s.Allocator.GetOrtAllocator(),
 		inuputNames,
 		C.size_t(s.inputCount),
 		input.ortValue,
@@ -159,8 +155,8 @@ func (s *Session) Run(input *Value) ([]*Value, error) {
 		C.size_t(s.outputCount),
 		(**C.OrtValue)(&outputOrtValues[0]),
 	)
-	if err != nil {
-		return nil, err
+	if errMsg != nil {
+		return nil, newCStatusErr(errMsg)
 	}
 
 	values := make([]*Value, len(s.OutputNames))
