@@ -37,6 +37,8 @@ char *createAllocator(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *m
     return NULL;
 }
 
+// --------------------- CREATE ------------------------------
+
 char *getInputCount(const OrtApi *g_ort, OrtSession *session, size_t *input_count)
 {
     ORT_RETURN_ON_ERROR(g_ort->SessionGetInputCount(session, input_count));
@@ -53,6 +55,13 @@ char *getInputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *allo
     }
 
     *out = input_names;
+
+    return NULL;
+}
+
+char *getInputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **type_info)
+{
+    ORT_RETURN_ON_ERROR(g_ort->SessionGetInputTypeInfo(session, index, type_info));
 
     return NULL;
 }
@@ -77,9 +86,9 @@ char *getOutputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *all
     return NULL;
 }
 
-char *getInputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **type_info)
+char *getOutputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **type_info)
 {
-    ORT_RETURN_ON_ERROR(g_ort->SessionGetInputTypeInfo(session, index, type_info));
+    ORT_RETURN_ON_ERROR(g_ort->SessionGetOutputTypeInfo(session, index, type_info));
 
     return NULL;
 }
@@ -164,6 +173,29 @@ char *getMapKeyType(const OrtApi *g_ort, const OrtMapTypeInfo *map_type_info, en
 char *getMapValueType(const OrtApi *g_ort, const OrtMapTypeInfo *map_type_info, OrtTypeInfo **out)
 {
     ORT_RETURN_ON_ERROR(g_ort->GetMapValueType(map_type_info, out));
+
+    return NULL;
+}
+
+char *getTensorMutableData(const OrtApi *g_ort, OrtValue *value, void **out)
+{
+
+    ORT_RETURN_ON_ERROR(g_ort->GetTensorMutableData(value, out));
+
+    return NULL;
+}
+
+char *getValue(const OrtApi *g_ort, OrtAllocator *allocator, OrtValue *value, int index, OrtValue **out)
+{
+    ORT_RETURN_ON_ERROR(g_ort->GetValue(value, index, allocator, out));
+
+    return NULL;
+}
+
+char *getValueCount(const OrtApi *g_ort, OrtValue *value, size_t *out)
+{
+
+    ORT_RETURN_ON_ERROR(g_ort->GetValueCount(value, out));
 
     return NULL;
 }

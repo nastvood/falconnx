@@ -10,11 +10,7 @@ import (
 )
 
 func run(session *falconnx.Session, input []float32) error {
-	info := session.InputTypesInfo[0].TensorInfo
-
-	fmt.Printf("input[0]: %s\n", info)
-
-	inputTensor, err := falconnx.CreateFloatTensor(input, info.Dimensions)
+	inputTensor, err := falconnx.CreateFloatTensor(input, session.InputTypesInfo[0].TensorInfo.Dimensions)
 	if err != nil {
 		return err
 	}
@@ -24,14 +20,15 @@ func run(session *falconnx.Session, input []float32) error {
 		return err
 	}
 
-	for i := range outputs {
-		ti, err := outputs[i].GetTypeInfo()
-		if err != nil {
-			return err
-		}
+	inputData, _ := falconnx.GetTensorData[float32](inputTensor, session.InputTypesInfo[0])
+	fmt.Printf("input data[0] %v\n", inputData)
 
-		fmt.Printf("output[%d]: %s\n", i, ti)
-	}
+	labels, _ := falconnx.GetTensorData[int64](outputs[0], session.OutputTypesInfo[0])
+	fmt.Printf("labels %v\n", labels)
+
+	mapValue, _ := outputs[1].GetValue(session.Allocator, 0)
+	probabilities, _ := falconnx.GetMapData[int64, float32](mapValue, session.Allocator)
+	fmt.Printf("probabilities %v\n", probabilities)
 
 	return err
 }
@@ -48,6 +45,14 @@ func process() {
 	}
 
 	fmt.Printf("session %s\n", session.String())
+
+	for i, info := range session.InputTypesInfo {
+		fmt.Printf("input[%d]: %s\n", i, info.String())
+	}
+
+	for i, info := range session.OutputTypesInfo {
+		fmt.Printf("output[%d]: %s\n", i, info.String())
+	}
 
 	err = run(session, []float32{5.9, 3.0, 5.1, 1.8})
 	if err != nil {

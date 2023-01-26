@@ -6,17 +6,25 @@ package falconnx
 import "C"
 import "fmt"
 
-type Session struct {
-	ortSession        *C.OrtSession
-	ortSessionOptions *C.OrtSessionOptions
-	ortAllocator      *C.OrtAllocator
-	inputCount        uint64
-	outputCount       uint64
+type (
+	Session struct {
+		ortSession        *C.OrtSession
+		ortSessionOptions *C.OrtSessionOptions
+		outputCount       uint64
+		inputCount        uint64
 
-	InputNames     []string
-	InputTypesInfo []*TypeInfo
-	OutputNames    []string
-}
+		Allocator *Allocator
+
+		InputNames      []string
+		InputTypesInfo  []*TypeInfo
+		OutputNames     []string
+		OutputTypesInfo []*TypeInfo
+	}
+
+	Allocator struct {
+		OrtAllocator *C.OrtAllocator
+	}
+)
 
 func createSession(env *Env, modelPath string) (*Session, error) {
 	var sessionOptions *C.OrtSessionOptions
@@ -74,15 +82,34 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 	}
 	outputNames := allocatorGoStrings(allocator, outputCount, pOutputNames)
 
+	outputInfo := make([]*TypeInfo, outputCount)
+	for i := 0; i < int(outputCount); i++ {
+		var info *C.OrtTypeInfo
+		errMsg = C.getOutputInfo(gApi.ortApi, session, C.ulong(i), &info)
+		if errMsg != nil {
+			return nil, newCStatusErr(errMsg)
+		}
+
+		typeInfo, err := createTypeInfo(info)
+		if err != nil {
+			return nil, err
+		}
+
+		outputInfo[i] = typeInfo
+	}
+
 	return &Session{
 		ortSession:        session,
 		ortSessionOptions: sessionOptions,
-		ortAllocator:      allocator,
-		inputCount:        uint64(inputCount),
-		InputNames:        inputNames,
-		InputTypesInfo:    inputsInfo,
-		outputCount:       uint64(outputCount),
-		OutputNames:       outputNames,
+		Allocator: &Allocator{
+			OrtAllocator: allocator,
+		},
+		inputCount:      uint64(inputCount),
+		InputNames:      inputNames,
+		InputTypesInfo:  inputsInfo,
+		outputCount:     uint64(outputCount),
+		OutputNames:     outputNames,
+		OutputTypesInfo: outputInfo,
 	}, nil
 }
 
@@ -95,8 +122,8 @@ func (s *Session) release() {
 		C.releaseSessionOptions(gApi.ortApi, s.ortSessionOptions)
 	}
 
-	if s.ortAllocator != nil {
-		C.releaseAllocator(gApi.ortApi, s.ortAllocator)
+	if s.Allocator != nil && s.Allocator.OrtAllocator != nil {
+		C.releaseAllocator(gApi.ortApi, s.Allocator.OrtAllocator)
 	}
 
 	if s.ortSession != nil {
@@ -124,7 +151,7 @@ func (s *Session) Run(input *Value) ([]*Value, error) {
 		gApi.ortApi,
 		s.ortSession,
 		gApi.ortMemoryInfo,
-		s.ortAllocator,
+		s.Allocator.OrtAllocator,
 		inuputNames,
 		C.size_t(s.inputCount),
 		input.ortValue,

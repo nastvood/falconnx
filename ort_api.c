@@ -43,14 +43,14 @@ static char *run(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory
     //  allocate and set values separately
     ORT_RETURN_ON_ERROR(g_ort->Run(session, NULL, (const char *const *)input_names, (const OrtValue *const *)&input_value, input_names_len, (const char *const *)output_names, output_names_len, outputs));
 
-    for (size_t i = 0; i < output_names_len; i++)
+    /*     for (size_t i = 0; i < output_names_len; i++)
     {
 
         printf("\n%ld\n", i);
 
         int is_tensort = 0;
         ORT_RETURN_ON_ERROR(g_ort->IsTensor(outputs[i], &is_tensort));
-        // printf("is tensor %d %ld\n", is_tensort, i);
+        printf("is tensor %d %ld\n", is_tensort, i);
 
         if (is_tensort == 1)
         {
@@ -109,6 +109,7 @@ static char *run(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory
             }
         }
     }
+    */
 
     return NULL;
 }

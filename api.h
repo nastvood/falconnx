@@ -26,9 +26,10 @@ char *createAllocator(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *m
 
 char *getInputCount(const OrtApi *g_ort, OrtSession *session, size_t *input_count);
 char *getInputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *allocator, size_t input_count, char ***out);
+char *getInputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **type_info);
 char *getOutputCount(const OrtApi *g_ort, OrtSession *session, size_t *output_count);
 char *getOutputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *allocator, size_t output_count, char ***out);
-char *getInputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **type_info);
+char *getOutputInfo(const OrtApi *g_ort, OrtSession *session, size_t index, OrtTypeInfo **type_info);
 
 char *getOnnxTypeFromTypeInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, enum ONNXType *out);
 char *getTypeInfo(const OrtApi *g_ort, const OrtValue *value, OrtTypeInfo **out);
@@ -46,6 +47,10 @@ char *getMapValueType(const OrtApi *g_ort, const OrtMapTypeInfo *map_type_info, 
 char *castTypeInfoToTensorInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, const OrtTensorTypeAndShapeInfo **out);
 char *castTypeInfoToSequenceTypeInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, const OrtSequenceTypeInfo **out);
 char *castTypeInfoToMapTypeInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, const OrtMapTypeInfo **out);
+
+char *getTensorMutableData(const OrtApi *g_ort, OrtValue *value, void **out);
+char *getValue(const OrtApi *g_ort, OrtAllocator *allocator, OrtValue *value, int index, OrtValue **out);
+char *getValueCount(const OrtApi *g_ort, OrtValue *value, size_t *out);
 
 void releaseEnv(const OrtApi *g_ort, OrtEnv *env);
 void releaseMapTypeInfo(const OrtApi *g_ort, OrtMapTypeInfo *info);
