@@ -43,17 +43,17 @@ func (t ElementType) String() string {
 	switch t {
 	case ElementTypeFloat32:
 		return "float32"
-	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:
+	case ElementTypeUInt8:
 		return "uint8"
-	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
+	case ElementTypeInt8:
 		return "int8"
-	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:
+	case ElementTypeUInt16:
 		return "uint16"
-	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:
-		return "int8"
-	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
+	case ElementTypeInt16:
+		return "int16"
+	case ElementTypeInt32:
 		return "int32"
-	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
+	case ElementTypeInt64:
 		return "int64"
 	}
 
