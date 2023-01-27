@@ -17,9 +17,9 @@ char *createMemoryInfo(const OrtApi *g_ort, OrtMemoryInfo **memory_info)
     return NULL;
 }
 
-char *createEnv(const OrtApi *g_ort, OrtEnv **env)
+char *createEnv(const OrtApi *g_ort, OrtLoggingLevel level, const char *logid, OrtEnv **env)
 {
-    ORT_RETURN_ON_ERROR(g_ort->CreateEnv(ORT_LOGGING_LEVEL_WARNING, "test", env));
+    ORT_RETURN_ON_ERROR(g_ort->CreateEnv(level, logid, env));
 
     return NULL;
 }

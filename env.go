@@ -6,15 +6,18 @@ package falconnx
 import "C"
 import (
 	"runtime"
+	"unsafe"
 )
 
 type Env struct {
 	ortEnv *C.OrtEnv
 }
 
-func CreateEnv() (*Env, error) {
+func CreateEnv(level LoggingLevel, logid string) (*Env, error) {
 	var ortEnv *C.OrtEnv
-	errMsg := C.createEnv(gApi.ortApi, &ortEnv)
+	cLogid := C.CString(logid)
+	errMsg := C.createEnv(gApi.ortApi, LoggingLevelToC(level), cLogid, &ortEnv)
+	C.free(unsafe.Pointer(cLogid))
 	if errMsg != nil {
 		err := newCStatusErr(errMsg)
 		return nil, err
@@ -32,7 +35,7 @@ func CreateEnv() (*Env, error) {
 }
 
 func (env *Env) release() {
-	if env == nil {
+	if env == nil || env.ortEnv == nil {
 		return
 	}
 
@@ -44,12 +47,5 @@ func (env *Env) CreateSession(modelPath string) (*Session, error) {
 		return nil, nil
 	}
 
-	session, err := createSession(env, modelPath)
-	if err == nil {
-		runtime.SetFinalizer(session, func(session *Session) {
-			session.release()
-		})
-	}
-
-	return session, err
+	return createSession(env, modelPath)
 }

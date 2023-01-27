@@ -10,7 +10,7 @@ type Allocator struct {
 	ortAllocator *C.OrtAllocator
 }
 
-func CreateAllocator(ortAllocator *C.OrtAllocator) *Allocator {
+func createAllocator(ortAllocator *C.OrtAllocator) *Allocator {
 	a := &Allocator{
 		ortAllocator: ortAllocator,
 	}

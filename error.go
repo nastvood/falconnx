@@ -4,7 +4,10 @@ package falconnx
 	#include <stdlib.h>
 */
 import "C"
-import "unsafe"
+import (
+	"errors"
+	"unsafe"
+)
 
 type StatusErr struct {
 	msg string
@@ -27,3 +30,6 @@ func (e *StatusErr) Error() string {
 
 	return e.msg
 }
+
+var ErrNoTensor = errors.New("no tensor")
+var ErrNoValue = errors.New("value is nil")

@@ -16,9 +16,6 @@ type Value struct {
 	typeInfo *TypeInfo
 }
 
-var ErrNoTensor = errors.New("no tensor")
-var ErrNoValue = errors.New("value is nil")
-
 func CreateFloatTensor(input []float32, shape []int64) (*Value, error) {
 	val, err := createFloatTensor(input, shape)
 	if err == nil {

@@ -66,7 +66,7 @@ func run(session *falconnx.Session, input []float32) (*result, error) {
 }
 
 func process() {
-	env, err := falconnx.CreateEnv()
+	env, err := falconnx.CreateEnv(falconnx.LoggingLevelWarning, "iris")
 	if err != nil {
 		log.Fatalf("create env: %v", err)
 	}
@@ -98,8 +98,8 @@ func process() {
 		if !ok {
 			log.Fatalf("not found lable for: %d", res.Labels[0])
 		}
-		wantLabel := irisLabels[irisDataset[i].Class]
 
+		wantLabel := irisLabels[irisDataset[i].Class]
 		if irisLabel != wantLabel {
 			log.Printf("want %s, got %s", wantLabel, irisLabel)
 		}
@@ -113,5 +113,5 @@ func main() {
 
 	// check finalizers
 	runtime.GC()
-	time.Sleep(5 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 }
