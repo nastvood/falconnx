@@ -104,8 +104,6 @@ func GetTensorData[T ONNXTypeEl](v *Value, typeInfo *TypeInfo) ([]T, error) {
 		return nil, newCStatusErr(errMsg)
 	}
 
-	p := unsafe.Pointer(c)
-
 	var t *T
 
 	var size int
@@ -119,7 +117,7 @@ func GetTensorData[T ONNXTypeEl](v *Value, typeInfo *TypeInfo) ([]T, error) {
 	count := int(typeInfo.TensorInfo.TotalElementCount)
 	res := make([]T, count)
 	for i := 0; i < count; i++ {
-		res[i] = *(*T)(unsafe.Add(p, size*i))
+		res[i] = *(*T)(unsafe.Add(c, size*i))
 	}
 
 	return res, nil

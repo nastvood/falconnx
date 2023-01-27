@@ -138,15 +138,15 @@ func (t *TypeInfo) String() string {
 	}
 
 	if t.TensorInfo != nil {
-		return fmt.Sprintf("%s", t.TensorInfo)
+		return t.TensorInfo.String()
 	}
 
 	if t.SequenceInfo != nil {
-		return fmt.Sprintf("%s", t.SequenceInfo)
+		return t.SequenceInfo.String()
 	}
 
 	if t.MapInfo != nil {
-		return fmt.Sprintf("%s", t.MapInfo)
+		return t.MapInfo.String()
 	}
 
 	return ""

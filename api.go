@@ -24,7 +24,7 @@ func init() {
 	var ortMemoryInfo *C.OrtMemoryInfo = nil
 	errMsg := C.createMemoryInfo(ortApi, &ortMemoryInfo)
 	if errMsg != nil {
-		log.Fatal("init onnx api memory info %s", newCStatusErr(errMsg).Error())
+		log.Fatalf("init onnx api memory info %s", newCStatusErr(errMsg).Error())
 	}
 
 	gApi = api{

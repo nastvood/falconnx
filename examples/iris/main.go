@@ -9,10 +9,34 @@ import (
 	"github.com/nastvood/falconnx"
 )
 
-type result struct {
-	Labels        []int64
-	Probabilities map[int64]float32
-}
+type (
+	result struct {
+		Labels        []int64
+		Probabilities map[int64]float32
+	}
+
+	iris struct {
+		Feature []float32
+		Class   int64
+	}
+)
+
+var (
+	irisLabels = map[int64]string{
+		0: "Setosa",
+		1: "Versicolor",
+		2: "Virginica",
+	}
+
+	irisDataset = []iris{
+		{Feature: []float32{5.1, 3.5, 1.4, .2}, Class: 0},
+		{Feature: []float32{4.9, 3, 1.4, .2}, Class: 0},
+		{Feature: []float32{5.6, 2.7, 4.2, 1.3}, Class: 1},
+		{Feature: []float32{6.1, 2.8, 4, 1.3}, Class: 1},
+		{Feature: []float32{5.9, 3.0, 5.1, 1.8}, Class: 2},
+		{Feature: []float32{7.9, 3.8, 6.4, 2}, Class: 2},
+	}
+)
 
 func run(session *falconnx.Session, input []float32) (*result, error) {
 	inputTensor, err := falconnx.CreateFloatTensor(input, session.InputTypesInfo[0].TensorInfo.Dimensions)
@@ -62,14 +86,26 @@ func process() {
 		fmt.Printf("output[%d]: %s\n", i, info.String())
 	}
 
-	t0 := time.Now()
-	res, err := run(session, []float32{5.9, 3.0, 5.1, 1.8})
-	if err != nil {
-		log.Fatalf("run: %v", err)
-	}
-	t1 := time.Now()
+	for i := range irisDataset {
+		t0 := time.Now()
+		res, err := run(session, irisDataset[i].Feature)
+		if err != nil {
+			log.Fatalf("run: %v", err)
+		}
+		t1 := time.Now()
 
-	log.Printf("%+v %s\n", *res, t1.Sub(t0).String())
+		irisLabel, ok := irisLabels[res.Labels[0]]
+		if !ok {
+			log.Fatalf("not found lable for: %d", res.Labels[0])
+		}
+		wantLabel := irisLabels[irisDataset[i].Class]
+
+		if irisLabel != wantLabel {
+			log.Printf("want %s, got %s", wantLabel, irisLabel)
+		}
+
+		log.Printf("%+v:%s, %s\n", *res, irisLabel, t1.Sub(t0).String())
+	}
 }
 
 func main() {
