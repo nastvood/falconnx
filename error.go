@@ -31,5 +31,9 @@ func (e *StatusErr) Error() string {
 	return e.msg
 }
 
-var ErrNoTensor = errors.New("no tensor")
-var ErrNoValue = errors.New("value is nil")
+var (
+	ErrNoTensor          = errors.New("no tensor")
+	ErrValueIsNil        = errors.New("value is nil")
+	ErrValueIsNotCreated = errors.New("value is not created")
+	ErrSliceIsEmpty      = errors.New("slice is empty")
+)

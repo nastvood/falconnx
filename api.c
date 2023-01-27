@@ -39,11 +39,36 @@ char *createAllocator(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *m
     return NULL;
 }
 
-char *createFloatTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, float *input, size_t input_len, int64_t *shape, size_t shape_len, OrtValue **out)
+char *createTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, void *input, size_t input_len, int64_t *shape, size_t shape_len, ONNXTensorElementDataType type, OrtValue **out)
 {
-    const size_t model_input_len = input_len * sizeof(float);
+    size_t model_input_len = input_len;
 
-    ORT_RETURN_ON_ERROR(g_ort->CreateTensorWithDataAsOrtValue(memory_info, input, model_input_len, shape, shape_len, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, out));
+    switch (type)
+    {
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
+        model_input_len *= sizeof(float);
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:
+        model_input_len *= sizeof(uint8_t);
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
+        model_input_len *= sizeof(int8_t);
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:
+        model_input_len *= sizeof(uint16_t);
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:
+        model_input_len *= sizeof(int16_t);
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
+        model_input_len *= sizeof(int32_t);
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
+        model_input_len *= sizeof(int64_t);
+        break;
+    }
+
+    ORT_RETURN_ON_ERROR(g_ort->CreateTensorWithDataAsOrtValue(memory_info, input, model_input_len, shape, shape_len, type, out));
 
     return NULL;
 }

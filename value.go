@@ -5,22 +5,51 @@ package falconnx
 */
 import "C"
 import (
-	"errors"
 	"runtime"
 	"unsafe"
 )
 
-type Value struct {
-	ortValue *C.OrtValue
-
-	typeInfo *TypeInfo
-}
-
-func CreateFloatTensor(input []float32, shape []int64) (*Value, error) {
-	val, err := createFloatTensor(input, shape)
-	if err == nil {
-		runtime.SetFinalizer(val, func(val *Value) { val.release() })
+type (
+	ONNXTypeEl interface {
+		int64 | float32
 	}
+
+	Value struct {
+		ortValue *C.OrtValue
+
+		typeInfo *TypeInfo
+	}
+)
+
+func CreateTensor[T ONNXTypeEl](input []T, shape []int64) (*Value, error) {
+	if len(input) == 0 {
+		return nil, ErrSliceIsEmpty
+	}
+
+	var t *T
+
+	var typeElement C.ONNXTensorElementDataType
+	switch any(t).(type) {
+	case *float32:
+		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT
+	case *int64:
+		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64
+	}
+
+	data := unsafe.Pointer(&input[0])
+	var ortValue *C.OrtValue = nil
+	errMsg := C.createTensorWithDataAsOrtValue(gApi.ortApi, gApi.ortMemoryInfo, data, C.ulong(len(input)), (*C.int64_t)(&shape[0]), C.size_t(len(shape)), typeElement, &ortValue)
+	if errMsg != nil {
+		return nil, newCStatusErr(errMsg)
+	}
+
+	val := &Value{
+		ortValue: ortValue,
+	}
+
+	runtime.SetFinalizer(val, func(val *Value) {
+		val.release()
+	})
 
 	return val, nil
 }
@@ -30,18 +59,32 @@ func createByOrtValue(ortValue *C.OrtValue) *Value {
 		return nil
 	}
 
-	return &Value{
+	val := &Value{
 		ortValue: ortValue,
 	}
+
+	runtime.SetFinalizer(val, func(val *Value) {
+		val.release()
+	})
+
+	return val
+}
+
+func (v *Value) release() {
+	if v == nil || v.ortValue == nil {
+		return
+	}
+
+	C.releaseValue(gApi.ortApi, v.ortValue)
 }
 
 func (v *Value) GetTypeInfo() (*TypeInfo, error) {
 	if v == nil {
-		return nil, ErrNoValue
+		return nil, ErrValueIsNil
 	}
 
 	if v.ortValue == nil {
-		return nil, errors.New("value is not inited")
+		return nil, ErrValueIsNotCreated
 	}
 
 	if v.typeInfo != nil {
@@ -84,19 +127,9 @@ func (v *Value) GetValue(allocator *Allocator, index int) (*Value, error) {
 	return createByOrtValue(ortValue), nil
 }
 
-func (v *Value) release() {
-	if v != nil && v.ortValue != nil {
-		C.releaseValue(gApi.ortApi, v.ortValue)
-	}
-}
-
-type ONNXTypeEl interface {
-	int64 | float32
-}
-
 func GetTensorData[T ONNXTypeEl](v *Value, typeInfo *TypeInfo) ([]T, error) {
-	c := unsafe.Pointer(uintptr(0))
-	errMsg := C.getTensorMutableData(gApi.ortApi, v.ortValue, &c)
+	data := unsafe.Pointer(uintptr(0))
+	errMsg := C.getTensorMutableData(gApi.ortApi, v.ortValue, &data)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -114,7 +147,7 @@ func GetTensorData[T ONNXTypeEl](v *Value, typeInfo *TypeInfo) ([]T, error) {
 	count := int(typeInfo.TensorInfo.TotalElementCount)
 	res := make([]T, count)
 	for i := 0; i < count; i++ {
-		res[i] = *(*T)(unsafe.Add(c, size*i))
+		res[i] = *(*T)(unsafe.Add(data, size*i))
 	}
 
 	return res, nil
@@ -158,20 +191,4 @@ func GetSeqMapData[K, V ONNXTypeEl](v *Value, allocator *Allocator) (map[K]V, er
 	}
 
 	return GetMapData[K, V](mapValue, allocator)
-}
-
-func createFloatTensor(input []float32, shape []int64) (*Value, error) {
-	if len(input) == 0 {
-		return nil, errors.New("the input is empty")
-	}
-
-	var ortValue *C.OrtValue = nil
-	errMsg := C.createFloatTensorWithDataAsOrtValue(gApi.ortApi, gApi.ortMemoryInfo, (*C.float)(&input[0]), C.ulong(len(input)), (*C.int64_t)(&shape[0]), C.size_t(len(shape)), &ortValue)
-	if errMsg != nil {
-		return nil, newCStatusErr(errMsg)
-	}
-
-	return &Value{
-		ortValue: ortValue,
-	}, nil
 }

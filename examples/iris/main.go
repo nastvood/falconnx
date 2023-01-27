@@ -39,7 +39,7 @@ var (
 )
 
 func run(session *falconnx.Session, input []float32) (*result, error) {
-	inputTensor, err := falconnx.CreateFloatTensor(input, session.InputTypesInfo[0].TensorInfo.Dimensions)
+	inputTensor, err := falconnx.CreateTensor(input, session.InputTypesInfo[0].TensorInfo.Dimensions)
 	if err != nil {
 		return nil, err
 	}

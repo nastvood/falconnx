@@ -23,7 +23,7 @@ char *createMemoryInfo(const OrtApi *g_ort, OrtMemoryInfo **memory_info);
 char *createEnv(const OrtApi *g_ort, OrtLoggingLevel level, const char *logid, OrtEnv **env);
 char *createSession(const OrtApi *g_ort, OrtEnv *env, OrtSessionOptions **session_options, OrtSession **session, const char *model_path);
 char *createAllocator(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory_info, OrtAllocator **allocator);
-char *createFloatTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, float *input, size_t input_len, int64_t *shape, size_t shape_len, OrtValue **out);
+char *createTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, void *input, size_t input_len, int64_t *shape, size_t shape_len, ONNXTensorElementDataType type, OrtValue **out);
 
 char *getInputCount(const OrtApi *g_ort, OrtSession *session, size_t *input_count);
 char *getInputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *allocator, size_t input_count, char ***out);
