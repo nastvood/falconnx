@@ -109,7 +109,11 @@ func process() {
 }
 
 func main() {
+	fmt.Println("------------------=== IRIS Start... ===------------------")
+
 	process()
+
+	fmt.Printf("------------------=== IRIS END ===-----------------\n\n")
 
 	// check finalizers
 	runtime.GC()

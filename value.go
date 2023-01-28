@@ -11,7 +11,7 @@ import (
 
 type (
 	ONNXTypeEl interface {
-		int64 | float32
+		float32 | int64
 	}
 
 	Value struct {
@@ -117,6 +117,7 @@ func (v *Value) GetValueCount() (int, error) {
 	return int(size), nil
 }
 
+// GetValue for only sequence or map.
 func (v *Value) GetValue(allocator *Allocator, index int) (*Value, error) {
 	var ortValue *C.OrtValue
 	errMsg := C.getValue(gApi.ortApi, allocator.GetOrtAllocator(), v.ortValue, C.int(index), &ortValue)
