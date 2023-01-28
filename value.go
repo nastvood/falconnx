@@ -22,7 +22,7 @@ type (
 	}
 )
 
-func createByOrtValue(ortValue *C.OrtValue) *Value {
+func createValueByOrt(ortValue *C.OrtValue) *Value {
 	if ortValue == nil {
 		return nil
 	}
@@ -124,13 +124,21 @@ func (v *Value) GetValue(allocator *Allocator, index int) (*Value, error) {
 		return nil, err
 	}
 
+	onnxType, err := v.GetType()
+	if err != nil {
+		return nil, err
+	}
+	if *onnxType != OnnxTypeSequence && *onnxType != OnnxTypeMap {
+		return nil, ErrNoSequenceOrMap
+	}
+
 	var ortValue *C.OrtValue
 	errMsg := C.getValue(gApi.ortApi, allocator.getOrtAllocator(), v.ortValue, C.int(index), &ortValue)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
 
-	return createByOrtValue(ortValue), nil
+	return createValueByOrt(ortValue), nil
 }
 
 func CreateTensor[T ONNXTypeEl](input []T, shape []int64) (*Value, error) {
@@ -157,6 +165,7 @@ func CreateTensor[T ONNXTypeEl](input []T, shape []int64) (*Value, error) {
 
 	val := &Value{
 		ortValue: ortValue,
+		onnxType: ref(OnnxTypeTensor),
 	}
 
 	runtime.SetFinalizer(val, func(val *Value) {

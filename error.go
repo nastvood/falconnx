@@ -32,6 +32,7 @@ func (e *StatusErr) Error() string {
 }
 
 var (
+	ErrNoSequenceOrMap   = errors.New("no sequence or map")
 	ErrNoTensor          = errors.New("no tensor")
 	ErrNoMap             = errors.New("no map")
 	ErrNoSequence        = errors.New("no sequence")

@@ -243,6 +243,21 @@ char *getValueType(const OrtApi *g_ort, const OrtValue *value, enum ONNXType *ou
     return NULL;
 }
 
+char *getAvailableProviders(const OrtApi *g_ort)
+{
+    char **output = (char **)calloc(1, sizeof(char **));
+    int len = 0;
+    ORT_RETURN_ON_ERROR(g_ort->GetAvailableProviders(&output, &len));
+
+    printf("%d\n", len);
+    for (int i = 0; i < len; ++i)
+    {
+        printf("%s\n", output[i]);
+    }
+
+    return NULL;
+}
+
 // --------------------- RELEASES ------------------------------
 
 void releaseEnv(const OrtApi *g_ort, OrtEnv *env)

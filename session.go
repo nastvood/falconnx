@@ -167,7 +167,7 @@ func (s *Session) Run(input *Value) ([]*Value, error) {
 
 	values := make([]*Value, len(s.OutputNames))
 	for i, ortValue := range outputOrtValues {
-		values[i] = createByOrtValue(ortValue)
+		values[i] = createValueByOrt(ortValue)
 	}
 
 	return values, nil
