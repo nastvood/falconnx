@@ -120,7 +120,7 @@ func (v *Value) GetValueCount() (int, error) {
 // GetValue for only sequence or map.
 func (v *Value) GetValue(allocator *Allocator, index int) (*Value, error) {
 	var ortValue *C.OrtValue
-	errMsg := C.getValue(gApi.ortApi, allocator.GetOrtAllocator(), v.ortValue, C.int(index), &ortValue)
+	errMsg := C.getValue(gApi.ortApi, allocator.getOrtAllocator(), v.ortValue, C.int(index), &ortValue)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}

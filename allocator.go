@@ -24,6 +24,6 @@ func createAllocator(ortAllocator *C.OrtAllocator) *Allocator {
 	return a
 }
 
-func (a *Allocator) GetOrtAllocator() *C.OrtAllocator {
+func (a *Allocator) getOrtAllocator() *C.OrtAllocator {
 	return a.ortAllocator
 }

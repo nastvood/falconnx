@@ -153,7 +153,7 @@ func (s *Session) Run(input *Value) ([]*Value, error) {
 		gApi.ortApi,
 		s.ortSession,
 		gApi.ortMemoryInfo,
-		s.Allocator.GetOrtAllocator(),
+		s.Allocator.getOrtAllocator(),
 		inuputNames,
 		C.size_t(s.inputCount),
 		input.ortValue,
