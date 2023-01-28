@@ -59,3 +59,7 @@ func allocatorGoStrings(alloocator *C.OrtAllocator, argc C.size_t, argv **C.char
 
 	return gostrings
 }
+
+func ref[T any](t T) *T {
+	return &t
+}

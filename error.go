@@ -33,6 +33,8 @@ func (e *StatusErr) Error() string {
 
 var (
 	ErrNoTensor          = errors.New("no tensor")
+	ErrNoMap             = errors.New("no map")
+	ErrNoSequence        = errors.New("no sequence")
 	ErrValueIsNil        = errors.New("value is nil")
 	ErrValueIsNotCreated = errors.New("value is not created")
 	ErrSliceIsEmpty      = errors.New("slice is empty")

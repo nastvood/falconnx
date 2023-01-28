@@ -236,6 +236,13 @@ char *getValueCount(const OrtApi *g_ort, OrtValue *value, size_t *out)
     return NULL;
 }
 
+char *getValueType(const OrtApi *g_ort, const OrtValue *value, enum ONNXType *out)
+{
+    ORT_RETURN_ON_ERROR(g_ort->GetValueType(value, out));
+
+    return NULL;
+}
+
 // --------------------- RELEASES ------------------------------
 
 void releaseEnv(const OrtApi *g_ort, OrtEnv *env)

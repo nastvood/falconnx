@@ -52,6 +52,7 @@ char *castTypeInfoToMapTypeInfo(const OrtApi *g_ort, OrtTypeInfo *typeInfo, cons
 char *getTensorMutableData(const OrtApi *g_ort, OrtValue *value, void **out);
 char *getValue(const OrtApi *g_ort, OrtAllocator *allocator, OrtValue *value, int index, OrtValue **out);
 char *getValueCount(const OrtApi *g_ort, OrtValue *value, size_t *out);
+char *getValueType(const OrtApi *g_ort, const OrtValue *value, enum ONNXType *out);
 
 void releaseEnv(const OrtApi *g_ort, OrtEnv *env);
 void releaseMapTypeInfo(const OrtApi *g_ort, OrtMapTypeInfo *info);
