@@ -119,7 +119,7 @@ func (v *Value) GetValueCount() (int, error) {
 }
 
 // GetValue for only sequence or map.
-func (v *Value) GetValue(allocator *Allocator, index int) (*Value, error) {
+func (v *Value) GetValue(allocator *allocator, index int) (*Value, error) {
 	if err := v.initCheck(); err != nil {
 		return nil, err
 	}
@@ -213,7 +213,7 @@ func GetTensorData[T ONNXTypeEl](v *Value, typeInfo *TypeInfo) ([]T, error) {
 	return res, nil
 }
 
-func GetMapData[K, V ONNXTypeEl](v *Value, allocator *Allocator) (map[K]V, error) {
+func GetMapData[K, V ONNXTypeEl](v *Value, allocator *allocator) (map[K]V, error) {
 	if err := v.initCheck(); err != nil {
 		return nil, err
 	}
@@ -257,7 +257,7 @@ func GetMapData[K, V ONNXTypeEl](v *Value, allocator *Allocator) (map[K]V, error
 	return res, nil
 }
 
-func GetSeqMapData[K, V ONNXTypeEl](v *Value, allocator *Allocator) (map[K]V, error) {
+func GetSeqMapData[K, V ONNXTypeEl](v *Value, allocator *allocator, index int) (map[K]V, error) {
 	if err := v.initCheck(); err != nil {
 		return nil, err
 	}
@@ -270,7 +270,7 @@ func GetSeqMapData[K, V ONNXTypeEl](v *Value, allocator *Allocator) (map[K]V, er
 		return nil, ErrNoSequence
 	}
 
-	mapValue, err := v.GetValue(allocator, 0)
+	mapValue, err := v.GetValue(allocator, index)
 	if err != nil {
 		return nil, err
 	}

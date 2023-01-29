@@ -6,16 +6,16 @@ package falconnx
 import "C"
 import "runtime"
 
-type Allocator struct {
+type allocator struct {
 	ortAllocator *C.OrtAllocator
 }
 
-func createAllocator(ortAllocator *C.OrtAllocator) *Allocator {
-	a := &Allocator{
+func createAllocator(ortAllocator *C.OrtAllocator) *allocator {
+	a := &allocator{
 		ortAllocator: ortAllocator,
 	}
 
-	runtime.SetFinalizer(a, func(a *Allocator) {
+	runtime.SetFinalizer(a, func(a *allocator) {
 		if a != nil && a.ortAllocator != nil {
 			C.releaseAllocator(gApi.ortApi, a.ortAllocator)
 		}
@@ -24,6 +24,6 @@ func createAllocator(ortAllocator *C.OrtAllocator) *Allocator {
 	return a
 }
 
-func (a *Allocator) getOrtAllocator() *C.OrtAllocator {
+func (a *allocator) getOrtAllocator() *C.OrtAllocator {
 	return a.ortAllocator
 }

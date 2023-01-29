@@ -54,7 +54,7 @@ func run(session *falconnx.Session, input []float32) (*result, error) {
 		return nil, err
 	}
 
-	probabilities, err := falconnx.GetSeqMapData[int64, float32](outputs[1], session.Allocator)
+	probabilities, err := falconnx.GetSeqMapData[int64, float32](outputs[1], session.Allocator, 0)
 	if err != nil {
 		return nil, err
 	}

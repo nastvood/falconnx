@@ -17,7 +17,7 @@ type (
 		outputCount       uint64
 		inputCount        uint64
 
-		Allocator *Allocator
+		Allocator *allocator
 
 		InputNames      []string
 		InputTypesInfo  []*TypeInfo
