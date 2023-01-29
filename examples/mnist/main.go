@@ -109,7 +109,7 @@ func run(session *falconnx.Session, input []float32) ([]float32, error) {
 		return nil, err
 	}
 
-	labels, err := falconnx.GetTensorData[float32](outputs[0], session.OutputTypesInfo[0])
+	labels, err := falconnx.GetTensorData[float32](outputs[0], &session.OutputTypesInfo[0].TensorInfo.TotalElementCount)
 	if err != nil {
 		return nil, err
 	}

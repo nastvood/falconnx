@@ -175,7 +175,7 @@ func CreateTensor[T ONNXTypeEl](input []T, shape []int64) (*Value, error) {
 	return val, nil
 }
 
-func GetTensorData[T ONNXTypeEl](v *Value, typeInfo *TypeInfo) ([]T, error) {
+func GetTensorData[T ONNXTypeEl](v *Value, totalElementCount *uint64) ([]T, error) {
 	if err := v.initCheck(); err != nil {
 		return nil, err
 	}
@@ -186,6 +186,15 @@ func GetTensorData[T ONNXTypeEl](v *Value, typeInfo *TypeInfo) ([]T, error) {
 	}
 	if *onnxType != OnnxTypeTensor {
 		return nil, ErrNoTensor
+	}
+
+	if totalElementCount == nil {
+		typeInfo, err := v.GetTypeInfo()
+		if err != nil {
+			return nil, err
+		}
+
+		totalElementCount = ref(typeInfo.TensorInfo.TotalElementCount)
 	}
 
 	data := unsafe.Pointer(uintptr(0))
@@ -204,7 +213,7 @@ func GetTensorData[T ONNXTypeEl](v *Value, typeInfo *TypeInfo) ([]T, error) {
 		size = C.sizeof_int64_t
 	}
 
-	count := int(typeInfo.TensorInfo.TotalElementCount)
+	count := int(*totalElementCount)
 	res := make([]T, count)
 	for i := 0; i < count; i++ {
 		res[i] = *(*T)(unsafe.Add(data, size*i))
@@ -246,8 +255,8 @@ func GetMapData[K, V ONNXTypeEl](v *Value, allocator *allocator) (map[K]V, error
 		infs[i] = info
 	}
 
-	keys, _ := GetTensorData[K](values[0], infs[0])
-	vals, _ := GetTensorData[V](values[1], infs[1])
+	keys, _ := GetTensorData[K](values[0], ref(infs[0].TensorInfo.TotalElementCount))
+	vals, _ := GetTensorData[V](values[1], ref(infs[1].TensorInfo.TotalElementCount))
 
 	res := make(map[K]V, len(keys))
 	for i := range keys {

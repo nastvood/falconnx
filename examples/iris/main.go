@@ -49,7 +49,7 @@ func run(session *falconnx.Session, input []float32) (*result, error) {
 		return nil, err
 	}
 
-	labels, err := falconnx.GetTensorData[int64](outputs[0], session.OutputTypesInfo[0])
+	labels, err := falconnx.GetTensorData[int64](outputs[0], &session.OutputTypesInfo[0].TensorInfo.DimensionsCount)
 	if err != nil {
 		return nil, err
 	}
