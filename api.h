@@ -18,6 +18,14 @@
         }                                                           \
     } while (0);
 
+#define RETURN_ERROR_MSG(msg)                               \
+    {                                                       \
+        char *p = msg;                                      \
+        char *msgErr = calloc(strlen(p) + 1, sizeof(char)); \
+        strcpy(msgErr, p);                                  \
+        return msgErr;                                      \
+    }
+
 const OrtApi *createApi();
 char *createMemoryInfo(const OrtApi *g_ort, OrtMemoryInfo **memory_info);
 char *createEnv(const OrtApi *g_ort, OrtLoggingLevel level, const char *logid, OrtEnv **env);

@@ -66,6 +66,36 @@ char *createTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_
     case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
         model_input_len *= sizeof(int64_t);
         break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_STRING:
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_STRING")
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL")
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16")
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE")
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32")
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64:
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64")
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_COMPLEX64:
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_COMPLEX64")
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_COMPLEX128:
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_COMPLEX128")
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_BFLOAT16:
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_BFLOAT16")
+        break;
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED:
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED")
+        break;
     }
 
     ORT_RETURN_ON_ERROR(g_ort->CreateTensorWithDataAsOrtValue(memory_info, input, model_input_len, shape, shape_len, type, out));

@@ -1,7 +1,7 @@
 package falconnx
 
 /*
-	#cgo CFLAGS: -I${SRCDIR}/onnxruntime/include -Wreturn-type
+	#cgo CFLAGS: -I${SRCDIR}/onnxruntime/include -Wreturn-type -Wswitch
 	#cgo linux LDFLAGS: -L${SRCDIR}/onnxruntime/linux_x64 -lonnxruntime
 	#cgo arm64 LDFLAGS: -L${SRCDIR}/onnxruntime/osx_arm64 -lonnxruntime
 
