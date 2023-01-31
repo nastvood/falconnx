@@ -33,7 +33,7 @@ char *createSession(const OrtApi *g_ort, OrtEnv *env, OrtSessionOptions **sessio
 char *createAllocator(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory_info, OrtAllocator **allocator);
 char *createTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_info, void *input, size_t input_len, int64_t *shape, size_t shape_len, ONNXTensorElementDataType type, OrtValue **out);
 
-char *getAvailableProviders(const OrtApi *g_ort);
+char *getAvailableProviders(const OrtApi *g_ort, char ***output, int *len);
 
 char *getInputCount(const OrtApi *g_ort, OrtSession *session, size_t *input_count);
 char *getInputNames(const OrtApi *g_ort, OrtSession *session, OrtAllocator *allocator, size_t input_count, char ***out);
@@ -75,6 +75,7 @@ void releaseTensorTypeInfo(const OrtApi *g_ort, OrtTensorTypeAndShapeInfo *info)
 void releaseSequenceTypeInfo(const OrtApi *g_ort, OrtSequenceTypeInfo *info);
 void releaseValue(const OrtApi *g_ort, OrtValue *value);
 void releaseAllocatorArrayOfString(OrtAllocator *allocator, size_t size, char **strings);
+char *releaseAvailableProviders(const OrtApi *g_ort, char **ptr, int len);
 
 char *run(const OrtApi *g_ort, OrtSession *session, OrtMemoryInfo *memory_info, OrtAllocator *allocator,
           char **input_names, size_t input_names_len, OrtValue *input_value,

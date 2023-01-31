@@ -36,28 +36,20 @@ func stringsToCharCharArray(strs []string) (**C.char, func()) {
 	return (**C.char)(res), release
 }
 
-func floatsToFloatArray(vals []float32) *C.float {
-	lenVals := len(vals)
-	res := C.calloc(C.size_t(lenVals), C.sizeof_float)
+func allocatorGoStrings(alloocator *C.OrtAllocator, argc C.size_t, argv **C.char) []string {
+	gostrings := goStrings(int(argc), argv)
 
-	goArr := (*[1<<30 - 1]C.float)(res)
+	C.releaseAllocatorArrayOfString(alloocator, argc, argv)
 
-	for i, v := range vals {
-		goArr[i] = C.float(v)
-	}
-
-	return (*C.float)(res)
+	return gostrings
 }
 
-func allocatorGoStrings(alloocator *C.OrtAllocator, argc C.size_t, argv **C.char) []string {
-	length := int(argc)
+func goStrings(length int, argv **C.char) []string {
 	tmpslice := (*[1 << 30]*C.char)(unsafe.Pointer(argv))[:length:length]
 	gostrings := make([]string, length)
 	for i, s := range tmpslice {
 		gostrings[i] = C.GoString(s)
 	}
-
-	C.releaseAllocatorArrayOfString(alloocator, argc, argv)
 
 	return gostrings
 }

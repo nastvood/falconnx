@@ -9,11 +9,15 @@ package falconnx
 	#include "api.h"
 */
 import "C"
-import "log"
+import (
+	"log"
+)
 
 type api struct {
 	ortAPI        *C.OrtApi
 	ortMemoryInfo *C.OrtMemoryInfo
+
+	AvailableProviders []string
 }
 
 var gAPI api
@@ -27,10 +31,30 @@ func init() {
 		log.Fatalf("init onnx api memory info %s", newCStatusErr(errMsg).Error())
 	}
 
+	var length C.int
+	var providers **C.char
+	errMsg = C.getAvailableProviders(ortAPI, &providers, &length)
+	if errMsg != nil {
+		log.Fatalf("get available providers %s", newCStatusErr(errMsg).Error())
+	}
+
+	availableProviders := goStrings(int(length), providers)
+
+	errMsg = C.releaseAvailableProviders(ortAPI, providers, length)
+	if errMsg != nil {
+		log.Fatalf("release available providers %s", newCStatusErr(errMsg).Error())
+	}
+
 	gAPI = api{
 		ortAPI:        ortAPI,
 		ortMemoryInfo: ortMemoryInfo,
+
+		AvailableProviders: availableProviders,
 	}
+}
+
+func AvailableProviders() []string {
+	return gAPI.AvailableProviders
 }
 
 // LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/src/onnxruntime/lib && export LD_LIBRARY_PATH

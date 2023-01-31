@@ -94,7 +94,7 @@ char *createTensorWithDataAsOrtValue(const OrtApi *g_ort, OrtMemoryInfo *memory_
         RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_BFLOAT16")
         break;
     case ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED:
-        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED")
+        RETURN_ERROR_MSG("not implemented for ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED)")
         break;
     }
 
@@ -273,17 +273,9 @@ char *getValueType(const OrtApi *g_ort, const OrtValue *value, enum ONNXType *ou
     return NULL;
 }
 
-char *getAvailableProviders(const OrtApi *g_ort)
+char *getAvailableProviders(const OrtApi *g_ort, char ***output, int *len)
 {
-    char **output = (char **)calloc(1, sizeof(char **));
-    int len = 0;
-    ORT_RETURN_ON_ERROR(g_ort->GetAvailableProviders(&output, &len));
-
-    printf("%d\n", len);
-    for (int i = 0; i < len; ++i)
-    {
-        printf("%s\n", output[i]);
-    }
+    ORT_RETURN_ON_ERROR(g_ort->GetAvailableProviders(output, len));
 
     return NULL;
 }
@@ -348,6 +340,13 @@ void releaseAllocatorArrayOfString(OrtAllocator *allocator, size_t size, char **
     }
 
     allocator->Free(allocator, (strings));
+}
+
+char *releaseAvailableProviders(const OrtApi *g_ort, char **ptr, int len)
+{
+    ORT_RETURN_ON_ERROR(g_ort->ReleaseAvailableProviders(ptr, len));
+
+    return NULL;
 }
 
 // --------------------- RUN ------------------------------

@@ -110,6 +110,7 @@ func process() {
 
 func main() {
 	fmt.Println("------------------=== IRIS Start... ===------------------")
+	fmt.Printf("Available providers: %s\n", falconnx.AvailableProviders())
 
 	process()
 
