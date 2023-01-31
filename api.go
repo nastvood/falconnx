@@ -12,23 +12,23 @@ import "C"
 import "log"
 
 type api struct {
-	ortApi        *C.OrtApi
+	ortAPI        *C.OrtApi
 	ortMemoryInfo *C.OrtMemoryInfo
 }
 
-var gApi api
+var gAPI api
 
 func init() {
-	ortApi := C.createApi()
+	ortAPI := C.createApi()
 
-	var ortMemoryInfo *C.OrtMemoryInfo = nil
-	errMsg := C.createMemoryInfo(ortApi, &ortMemoryInfo)
+	var ortMemoryInfo *C.OrtMemoryInfo
+	errMsg := C.createMemoryInfo(ortAPI, &ortMemoryInfo)
 	if errMsg != nil {
 		log.Fatalf("init onnx api memory info %s", newCStatusErr(errMsg).Error())
 	}
 
-	gApi = api{
-		ortApi:        ortApi,
+	gAPI = api{
+		ortAPI:        ortAPI,
 		ortMemoryInfo: ortMemoryInfo,
 	}
 }

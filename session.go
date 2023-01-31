@@ -30,7 +30,7 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 	var ortSessionOptions *C.OrtSessionOptions
 	var ortSession *C.OrtSession
 	cModelPath := C.CString(modelPath)
-	errMsg := C.createSession(gApi.ortApi, env.ortEnv, &ortSessionOptions, &ortSession, cModelPath)
+	errMsg := C.createSession(gAPI.ortAPI, env.ortEnv, &ortSessionOptions, &ortSession, cModelPath)
 	C.free(unsafe.Pointer(cModelPath))
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
@@ -45,20 +45,20 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 	})
 
 	var ortAllocator *C.OrtAllocator
-	errMsg = C.createAllocator(gApi.ortApi, ortSession, gApi.ortMemoryInfo, &ortAllocator)
+	errMsg = C.createAllocator(gAPI.ortAPI, ortSession, gAPI.ortMemoryInfo, &ortAllocator)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
 	session.Allocator = createAllocator(ortAllocator)
 
 	var inputCount C.size_t
-	errMsg = C.getInputCount(gApi.ortApi, ortSession, &inputCount)
+	errMsg = C.getInputCount(gAPI.ortAPI, ortSession, &inputCount)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
 
 	var pInputNames **C.char
-	errMsg = C.getInputNames(gApi.ortApi, ortSession, ortAllocator, inputCount, &pInputNames)
+	errMsg = C.getInputNames(gAPI.ortAPI, ortSession, ortAllocator, inputCount, &pInputNames)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -67,7 +67,7 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 	inputsInfo := make([]*TypeInfo, inputCount)
 	for i := 0; i < int(inputCount); i++ {
 		var info *C.OrtTypeInfo
-		errMsg = C.getInputInfo(gApi.ortApi, ortSession, C.ulong(i), &info)
+		errMsg = C.getInputInfo(gAPI.ortAPI, ortSession, C.ulong(i), &info)
 		if errMsg != nil {
 			return nil, newCStatusErr(errMsg)
 		}
@@ -81,13 +81,13 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 	}
 
 	var outputCount C.size_t
-	errMsg = C.getOutputCount(gApi.ortApi, ortSession, &outputCount)
+	errMsg = C.getOutputCount(gAPI.ortAPI, ortSession, &outputCount)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
 
-	var pOutputNames **C.char = nil
-	errMsg = C.getOutputNames(gApi.ortApi, ortSession, ortAllocator, outputCount, &pOutputNames)
+	var pOutputNames **C.char
+	errMsg = C.getOutputNames(gAPI.ortAPI, ortSession, ortAllocator, outputCount, &pOutputNames)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -96,7 +96,7 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 	outputInfo := make([]*TypeInfo, outputCount)
 	for i := 0; i < int(outputCount); i++ {
 		var info *C.OrtTypeInfo
-		errMsg = C.getOutputInfo(gApi.ortApi, ortSession, C.ulong(i), &info)
+		errMsg = C.getOutputInfo(gAPI.ortAPI, ortSession, C.ulong(i), &info)
 		if errMsg != nil {
 			return nil, newCStatusErr(errMsg)
 		}
@@ -125,11 +125,11 @@ func (s *Session) release() {
 	}
 
 	if s.ortSessionOptions != nil {
-		C.releaseSessionOptions(gApi.ortApi, s.ortSessionOptions)
+		C.releaseSessionOptions(gAPI.ortAPI, s.ortSessionOptions)
 	}
 
 	if s.ortSession != nil {
-		C.releaseSession(gApi.ortApi, s.ortSession)
+		C.releaseSession(gAPI.ortAPI, s.ortSession)
 	}
 }
 
@@ -150,9 +150,9 @@ func (s *Session) Run(input *Value) ([]*Value, error) {
 
 	outputOrtValues := make([]*C.OrtValue, len(s.OutputNames))
 	errMsg := C.run(
-		gApi.ortApi,
+		gAPI.ortAPI,
 		s.ortSession,
-		gApi.ortMemoryInfo,
+		gAPI.ortMemoryInfo,
 		s.Allocator.getOrtAllocator(),
 		inuputNames,
 		C.size_t(s.inputCount),

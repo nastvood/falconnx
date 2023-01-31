@@ -43,7 +43,7 @@ func (v *Value) release() {
 		return
 	}
 
-	C.releaseValue(gApi.ortApi, v.ortValue)
+	C.releaseValue(gAPI.ortAPI, v.ortValue)
 }
 
 func (v *Value) initCheck() error {
@@ -68,7 +68,7 @@ func (v *Value) GetType() (*OnnxType, error) {
 	}
 
 	var ortOnnxType C.enum_ONNXType
-	errMsg := C.getValueType(gApi.ortApi, v.ortValue, &ortOnnxType)
+	errMsg := C.getValueType(gAPI.ortAPI, v.ortValue, &ortOnnxType)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -88,7 +88,7 @@ func (v *Value) GetTypeInfo() (*TypeInfo, error) {
 	}
 
 	var info *C.OrtTypeInfo
-	errMsg := C.getTypeInfo(gApi.ortApi, v.ortValue, &info)
+	errMsg := C.getTypeInfo(gAPI.ortAPI, v.ortValue, &info)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -110,7 +110,7 @@ func (v *Value) GetValueCount() (int, error) {
 	}
 
 	var size C.size_t
-	errMsg := C.getValueCount(gApi.ortApi, v.ortValue, &size)
+	errMsg := C.getValueCount(gAPI.ortAPI, v.ortValue, &size)
 	if errMsg != nil {
 		return 0, newCStatusErr(errMsg)
 	}
@@ -133,7 +133,7 @@ func (v *Value) GetValue(allocator *allocator, index int) (*Value, error) {
 	}
 
 	var ortValue *C.OrtValue
-	errMsg := C.getValue(gApi.ortApi, allocator.getOrtAllocator(), v.ortValue, C.int(index), &ortValue)
+	errMsg := C.getValue(gAPI.ortAPI, allocator.getOrtAllocator(), v.ortValue, C.int(index), &ortValue)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -157,8 +157,8 @@ func CreateTensor[T ONNXTypeEl](input []T, shape []int64) (*Value, error) {
 	}
 
 	data := unsafe.Pointer(&input[0])
-	var ortValue *C.OrtValue = nil
-	errMsg := C.createTensorWithDataAsOrtValue(gApi.ortApi, gApi.ortMemoryInfo, data, C.ulong(len(input)), (*C.int64_t)(&shape[0]), C.size_t(len(shape)), typeElement, &ortValue)
+	var ortValue *C.OrtValue
+	errMsg := C.createTensorWithDataAsOrtValue(gAPI.ortAPI, gAPI.ortMemoryInfo, data, C.ulong(len(input)), (*C.int64_t)(&shape[0]), C.size_t(len(shape)), typeElement, &ortValue)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -198,7 +198,7 @@ func GetTensorData[T ONNXTypeEl](v *Value, totalElementCount *uint64) ([]T, erro
 	}
 
 	data := unsafe.Pointer(uintptr(0))
-	errMsg := C.getTensorMutableData(gApi.ortApi, v.ortValue, &data)
+	errMsg := C.getTensorMutableData(gAPI.ortAPI, v.ortValue, &data)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}

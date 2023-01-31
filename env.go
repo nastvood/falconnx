@@ -16,7 +16,7 @@ type Env struct {
 func CreateEnv(level LoggingLevel, logid string) (*Env, error) {
 	var ortEnv *C.OrtEnv
 	cLogid := C.CString(logid)
-	errMsg := C.createEnv(gApi.ortApi, LoggingLevelToC(level), cLogid, &ortEnv)
+	errMsg := C.createEnv(gAPI.ortAPI, LoggingLevelToC(level), cLogid, &ortEnv)
 	C.free(unsafe.Pointer(cLogid))
 	if errMsg != nil {
 		err := newCStatusErr(errMsg)
@@ -39,7 +39,7 @@ func (env *Env) release() {
 		return
 	}
 
-	C.releaseEnv(gApi.ortApi, env.ortEnv)
+	C.releaseEnv(gAPI.ortAPI, env.ortEnv)
 }
 
 func (env *Env) CreateSession(modelPath string) (*Session, error) {

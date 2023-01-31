@@ -9,6 +9,8 @@ import (
 	"unsafe"
 )
 
+const strNil = "nil"
+
 var pSize = C.size_t(unsafe.Sizeof(uintptr(0)))
 
 func stringsToCharCharArray(strs []string) (**C.char, func()) {

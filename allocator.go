@@ -17,7 +17,7 @@ func createAllocator(ortAllocator *C.OrtAllocator) *allocator {
 
 	runtime.SetFinalizer(a, func(a *allocator) {
 		if a != nil && a.ortAllocator != nil {
-			C.releaseAllocator(gApi.ortApi, a.ortAllocator)
+			C.releaseAllocator(gAPI.ortAPI, a.ortAllocator)
 		}
 	})
 

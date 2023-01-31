@@ -22,33 +22,33 @@ func (mi *MapInfo) release() {
 	}
 
 	if mi.ortMapTypeInfo != nil {
-		C.releaseMapTypeInfo(gApi.ortApi, mi.ortMapTypeInfo)
+		C.releaseMapTypeInfo(gAPI.ortAPI, mi.ortMapTypeInfo)
 	}
 }
 
-func (m *MapInfo) String() string {
-	if m == nil {
-		return "nil"
+func (mi *MapInfo) String() string {
+	if mi == nil {
+		return strNil
 	}
 
-	return fmt.Sprintf("map<%s,%s>", m.KeyElementType, m.ValueTypeInfo)
+	return fmt.Sprintf("map<%s,%s>", mi.KeyElementType, mi.ValueTypeInfo)
 }
 
 func createMapInfo(info *C.OrtTypeInfo) (*MapInfo, error) {
 	var ortMapTypeInfo *C.OrtMapTypeInfo
-	errMsg := C.castTypeInfoToMapTypeInfo(gApi.ortApi, info, &ortMapTypeInfo)
+	errMsg := C.castTypeInfoToMapTypeInfo(gAPI.ortAPI, info, &ortMapTypeInfo)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
 
 	var onnxTensorElementDataType C.enum_ONNXTensorElementDataType
-	errMsg = C.getMapKeyType(gApi.ortApi, ortMapTypeInfo, &onnxTensorElementDataType)
+	errMsg = C.getMapKeyType(gAPI.ortAPI, ortMapTypeInfo, &onnxTensorElementDataType)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
 
 	var ortTypeInfo *C.OrtTypeInfo
-	errMsg = C.getMapValueType(gApi.ortApi, ortMapTypeInfo, &ortTypeInfo)
+	errMsg = C.getMapValueType(gAPI.ortAPI, ortMapTypeInfo, &ortTypeInfo)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}

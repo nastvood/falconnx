@@ -24,13 +24,13 @@ func (ti *TypeInfo) release() {
 	}
 
 	if ti.ortTypeInfo != nil {
-		C.releaseTypeInfo(gApi.ortApi, ti.ortTypeInfo)
+		C.releaseTypeInfo(gAPI.ortAPI, ti.ortTypeInfo)
 	}
 }
 
 func createTypeInfo(info *C.OrtTypeInfo) (*TypeInfo, error) {
 	var ortONNXType C.enum_ONNXType
-	errMsg := C.getOnnxTypeFromTypeInfo(gApi.ortApi, info, &ortONNXType)
+	errMsg := C.getOnnxTypeFromTypeInfo(gAPI.ortAPI, info, &ortONNXType)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -77,21 +77,21 @@ func createTypeInfo(info *C.OrtTypeInfo) (*TypeInfo, error) {
 	return typeInfo, nil
 }
 
-func (t *TypeInfo) String() string {
-	if t == nil {
-		return "nil"
+func (ti *TypeInfo) String() string {
+	if ti == nil {
+		return strNil
 	}
 
-	if t.TensorInfo != nil {
-		return t.TensorInfo.String()
+	if ti.TensorInfo != nil {
+		return ti.TensorInfo.String()
 	}
 
-	if t.SequenceInfo != nil {
-		return t.SequenceInfo.String()
+	if ti.SequenceInfo != nil {
+		return ti.SequenceInfo.String()
 	}
 
-	if t.MapInfo != nil {
-		return t.MapInfo.String()
+	if ti.MapInfo != nil {
+		return ti.MapInfo.String()
 	}
 
 	return ""
