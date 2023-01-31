@@ -16,6 +16,9 @@ const (
 	ElementTypeInt16
 	ElementTypeInt32
 	ElementTypeInt64
+	ElementTypeFloat64
+	ElementTypeUInt32
+	ElementTypeUInt64
 )
 
 func ElementTypeFromC(t C.enum_ONNXTensorElementDataType) ElementType {
@@ -34,6 +37,12 @@ func ElementTypeFromC(t C.enum_ONNXTensorElementDataType) ElementType {
 		return ElementTypeInt32
 	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
 		return ElementTypeInt64
+	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+		return ElementTypeFloat64
+	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:
+		return ElementTypeUInt32
+	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64:
+		return ElementTypeUInt64
 	}
 
 	return ElementTypeUndefined
@@ -55,6 +64,12 @@ func (t ElementType) String() string {
 		return "int32"
 	case ElementTypeInt64:
 		return "int64"
+	case ElementTypeFloat64:
+		return "int64"
+	case ElementTypeUInt32:
+		return "int32"
+	case ElementTypeUInt64:
+		return "uint64"
 	}
 
 	return "Undefined"

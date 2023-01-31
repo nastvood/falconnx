@@ -5,13 +5,14 @@ package falconnx
 */
 import "C"
 import (
+	"fmt"
 	"runtime"
 	"unsafe"
 )
 
 type (
 	ONNXTypeEl interface {
-		float32 | int64
+		float32 | uint8 | int8 | uint16 | int16 | int32 | int64 | float64 | uint32 | uint64
 	}
 
 	Value struct {
@@ -152,8 +153,26 @@ func CreateTensor[T ONNXTypeEl](input []T, shape []int64) (*Value, error) {
 	switch any(t).(type) {
 	case *float32:
 		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT
+	case *uint8:
+		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8
+	case *int8:
+		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8
+	case *uint16:
+		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16
+	case *int16:
+		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16
+	case *int32:
+		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32
 	case *int64:
 		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64
+	case *float64:
+		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE
+	case *uint32:
+		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32
+	case *uint64:
+		typeElement = C.ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64
+	default:
+		return nil, fmt.Errorf("CreateTensor is not implemented for %T", t)
 	}
 
 	data := unsafe.Pointer(&input[0])
@@ -209,8 +228,26 @@ func GetTensorData[T ONNXTypeEl](v *Value, totalElementCount *uint64) ([]T, erro
 	switch any(t).(type) {
 	case *float32:
 		size = C.sizeof_float
+	case *uint8:
+		size = C.sizeof_uint8_t
+	case *int8:
+		size = C.sizeof_int8_t
+	case *uint16:
+		size = C.sizeof_uint16_t
+	case *int16:
+		size = C.sizeof_int16_t
+	case *int32:
+		size = C.sizeof_int32_t
 	case *int64:
 		size = C.sizeof_int64_t
+	case *float64:
+		size = C.sizeof_double
+	case *uint32:
+		size = C.sizeof_uint32_t
+	case *uint64:
+		size = C.sizeof_uint64_t
+	default:
+		return nil, fmt.Errorf("GetTensorData is not implemented for %T", t)
 	}
 
 	count := int(*totalElementCount)
