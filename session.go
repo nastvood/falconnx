@@ -68,8 +68,7 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 			return nil, newCStatusErr(errMsg)
 		}
 
-		typeInfo, err := createTypeInfo(info)
-		C.releaseTypeInfo(gAPI.ortAPI, info)
+		typeInfo, err := createAndReleaseTypeInfo(info)
 		if err != nil {
 			return nil, err
 		}
@@ -98,8 +97,7 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 			return nil, newCStatusErr(errMsg)
 		}
 
-		typeInfo, err := createTypeInfo(info)
-		C.releaseTypeInfo(gAPI.ortAPI, info)
+		typeInfo, err := createAndReleaseTypeInfo(info)
 		if err != nil {
 			return nil, err
 		}

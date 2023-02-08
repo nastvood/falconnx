@@ -14,7 +14,9 @@ type TypeInfo struct {
 	MapInfo      *MapInfo
 }
 
-func createTypeInfo(info *C.OrtTypeInfo) (*TypeInfo, error) {
+func createAndReleaseTypeInfo(info *C.OrtTypeInfo) (*TypeInfo, error) {
+	defer C.releaseTypeInfo(gAPI.ortAPI, info)
+
 	var ortONNXType C.enum_ONNXType
 	errMsg := C.getOnnxTypeFromTypeInfo(gAPI.ortAPI, info, &ortONNXType)
 	if errMsg != nil {

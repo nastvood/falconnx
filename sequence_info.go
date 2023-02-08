@@ -34,7 +34,7 @@ func createSequenceInfo(info *C.OrtTypeInfo) (*SequenceInfo, error) {
 		return nil, newCStatusErr(errMsg)
 	}
 
-	typeInfo, err := createTypeInfo(ortTypeInfo)
+	typeInfo, err := createAndReleaseTypeInfo(ortTypeInfo)
 	if err != nil {
 		C.releaseSequenceTypeInfo(gAPI.ortAPI, ortSequenceTypeInfo)
 		C.releaseTypeInfo(gAPI.ortAPI, ortTypeInfo)

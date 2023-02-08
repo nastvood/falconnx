@@ -94,7 +94,7 @@ func (v *Value) GetTypeInfo() (*TypeInfo, error) {
 		return nil, newCStatusErr(errMsg)
 	}
 
-	typeInfo, err := createTypeInfo(info)
+	typeInfo, err := createAndReleaseTypeInfo(info)
 	if err != nil {
 		return nil, err
 	}

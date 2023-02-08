@@ -40,7 +40,7 @@ func createMapInfo(info *C.OrtTypeInfo) (*MapInfo, error) {
 		return nil, newCStatusErr(errMsg)
 	}
 
-	valueTypeInfo, err := createTypeInfo(ortTypeInfo)
+	valueTypeInfo, err := createAndReleaseTypeInfo(ortTypeInfo)
 	if err != nil {
 		return nil, err
 	}
