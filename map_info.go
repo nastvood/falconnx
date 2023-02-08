@@ -22,13 +22,11 @@ func (mi *MapInfo) String() string {
 }
 
 func createMapInfo(info *C.OrtTypeInfo) (*MapInfo, error) {
-	var ortMapTypeInfo *C.OrtMapTypeInfo
+	var ortMapTypeInfo *C.OrtMapTypeInfo // do not free this value
 	errMsg := C.castTypeInfoToMapTypeInfo(gAPI.ortAPI, info, &ortMapTypeInfo)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
-
-	defer C.releaseMapTypeInfo(gAPI.ortAPI, ortMapTypeInfo)
 
 	var onnxTensorElementDataType C.enum_ONNXTensorElementDataType
 	errMsg = C.getMapKeyType(gAPI.ortAPI, ortMapTypeInfo, &onnxTensorElementDataType)

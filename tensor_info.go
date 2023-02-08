@@ -24,13 +24,11 @@ func (ti *TensorInfo) String() string {
 }
 
 func createTensorInfo(info *C.OrtTypeInfo) (*TensorInfo, error) {
-	var ortTensorTypeAndShapeInfo *C.OrtTensorTypeAndShapeInfo
+	var ortTensorTypeAndShapeInfo *C.OrtTensorTypeAndShapeInfo // do not free this value
 	errMsg := C.castTypeInfoToTensorInfo(gAPI.ortAPI, info, &ortTensorTypeAndShapeInfo)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
-
-	defer C.releaseTensorTypeInfo(gAPI.ortAPI, ortTensorTypeAndShapeInfo)
 
 	var onnxTensorElementDataType C.enum_ONNXTensorElementDataType
 	errMsg = C.getTensorElementType(gAPI.ortAPI, ortTensorTypeAndShapeInfo, &onnxTensorElementDataType)

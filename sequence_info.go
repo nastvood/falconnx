@@ -21,7 +21,7 @@ func (si *SequenceInfo) String() string {
 }
 
 func createSequenceInfo(info *C.OrtTypeInfo) (*SequenceInfo, error) {
-	var ortSequenceTypeInfo *C.OrtSequenceTypeInfo
+	var ortSequenceTypeInfo *C.OrtSequenceTypeInfo // do not free this value
 	errMsg := C.castTypeInfoToSequenceTypeInfo(gAPI.ortAPI, info, &ortSequenceTypeInfo)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
