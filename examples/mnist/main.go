@@ -7,7 +7,6 @@ import (
 	"math"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/nastvood/falconnx"
@@ -109,7 +108,7 @@ func run(session *falconnx.Session, input []float32) ([]float32, error) {
 		return nil, err
 	}
 
-	labels, err := falconnx.GetTensorData[float32](outputs[0], &session.OutputTypesInfo[0].TensorInfo.TotalElementCount)
+	labels, err := falconnx.GetTensorData[float32](outputs[0], session.OutputTypesInfo[0].TensorInfo.TotalElementCount)
 	if err != nil {
 		return nil, err
 	}
@@ -122,11 +121,13 @@ func process() {
 	if err != nil {
 		log.Fatalf("create env: %v", err)
 	}
+	defer env.Release()
 
 	session, err := env.CreateSession("mnist.onnx")
 	if err != nil {
 		log.Fatalf("create session: %v", err)
 	}
+	defer session.Release()
 
 	log.Printf("session %s\n", session.String())
 
@@ -168,8 +169,4 @@ func main() {
 	process()
 
 	fmt.Printf("------------------=== MNIST END ===-----------------\n\n")
-
-	// check finalizers
-	runtime.GC()
-	time.Sleep(100 * time.Millisecond)
 }

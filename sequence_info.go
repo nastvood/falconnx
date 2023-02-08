@@ -6,23 +6,10 @@ package falconnx
 import "C"
 import (
 	"fmt"
-	"runtime"
 )
 
 type SequenceInfo struct {
-	ortSequenceTypeInfo *C.OrtSequenceTypeInfo
-
 	TypeInfo *TypeInfo
-}
-
-func (si *SequenceInfo) release() {
-	if si == nil {
-		return
-	}
-
-	if si.ortSequenceTypeInfo != nil {
-		C.releaseSequenceTypeInfo(gAPI.ortAPI, si.ortSequenceTypeInfo)
-	}
 }
 
 func (si *SequenceInfo) String() string {
@@ -55,13 +42,8 @@ func createSequenceInfo(info *C.OrtTypeInfo) (*SequenceInfo, error) {
 	}
 
 	sequenceInfo := &SequenceInfo{
-		ortSequenceTypeInfo: ortSequenceTypeInfo,
-		TypeInfo:            typeInfo,
+		TypeInfo: typeInfo,
 	}
-
-	runtime.SetFinalizer(sequenceInfo, func(si *SequenceInfo) {
-		si.release()
-	})
 
 	return sequenceInfo, nil
 }

@@ -5,7 +5,6 @@ package falconnx
 */
 import "C"
 import (
-	"runtime"
 	"unsafe"
 )
 
@@ -27,14 +26,10 @@ func CreateEnv(level LoggingLevel, logid string) (*Env, error) {
 		ortEnv: ortEnv,
 	}
 
-	runtime.SetFinalizer(env, func(env *Env) {
-		env.release()
-	})
-
 	return env, nil
 }
 
-func (env *Env) release() {
+func (env *Env) Release() {
 	if env == nil || env.ortEnv == nil {
 		return
 	}

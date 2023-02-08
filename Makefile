@@ -3,6 +3,7 @@ GOBIN:=$(GOPATH)/bin
 
 .PHONY: examples
 examples:
+	#cd examples/binary && go run main.go
 	cd examples/iris && go run main.go
 	cd examples/mnist && go run main.go
 

@@ -6,26 +6,13 @@ package falconnx
 import "C"
 import (
 	"fmt"
-	"runtime"
 )
 
 type TensorInfo struct {
-	ortTensorTypeAndShapeInfo *C.OrtTensorTypeAndShapeInfo
-
 	ElementType       ElementType
-	TotalElementCount uint64
+	TotalElementCount int64
 	DimensionsCount   uint64
 	Dimensions        []int64
-}
-
-func (ti *TensorInfo) release() {
-	if ti == nil {
-		return
-	}
-
-	if ti.ortTensorTypeAndShapeInfo != nil {
-		C.releaseTensorTypeInfo(gAPI.ortAPI, ti.ortTensorTypeAndShapeInfo)
-	}
 }
 
 func (ti *TensorInfo) String() string {
@@ -43,14 +30,10 @@ func createTensorInfo(info *C.OrtTypeInfo) (*TensorInfo, error) {
 		return nil, newCStatusErr(errMsg)
 	}
 
+	defer C.releaseTensorTypeInfo(gAPI.ortAPI, ortTensorTypeAndShapeInfo)
+
 	var onnxTensorElementDataType C.enum_ONNXTensorElementDataType
 	errMsg = C.getTensorElementType(gAPI.ortAPI, ortTensorTypeAndShapeInfo, &onnxTensorElementDataType)
-	if errMsg != nil {
-		return nil, newCStatusErr(errMsg)
-	}
-
-	var totalElementCount C.size_t
-	errMsg = C.getTensorShapeElementCount(gAPI.ortAPI, ortTensorTypeAndShapeInfo, &totalElementCount)
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
@@ -69,17 +52,23 @@ func createTensorInfo(info *C.OrtTypeInfo) (*TensorInfo, error) {
 		}
 	}
 
-	tensorInfo := &TensorInfo{
-		ortTensorTypeAndShapeInfo: ortTensorTypeAndShapeInfo,
-		ElementType:               ElementTypeFromC(onnxTensorElementDataType),
-		TotalElementCount:         uint64(totalElementCount),
-		DimensionsCount:           uint64(dimensionsCount),
-		Dimensions:                dimensions,
+	totalElementCount := int64(-1)
+	if index(dimensions, -1) == -1 {
+		var cTotalElementCount C.size_t
+		errMsg = C.getTensorShapeElementCount(gAPI.ortAPI, ortTensorTypeAndShapeInfo, &cTotalElementCount)
+		if errMsg != nil {
+			return nil, newCStatusErr(errMsg)
+		}
+
+		totalElementCount = int64(cTotalElementCount)
 	}
 
-	runtime.SetFinalizer(tensorInfo, func(ti *TensorInfo) {
-		ti.release()
-	})
+	tensorInfo := &TensorInfo{
+		ElementType:       ElementTypeFromC(onnxTensorElementDataType),
+		TotalElementCount: totalElementCount,
+		DimensionsCount:   uint64(dimensionsCount),
+		Dimensions:        dimensions,
+	}
 
 	return tensorInfo, nil
 }

@@ -6,7 +6,6 @@ package falconnx
 import "C"
 import (
 	"fmt"
-	"runtime"
 	"unsafe"
 )
 
@@ -40,9 +39,6 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 		ortSession:        ortSession,
 		ortSessionOptions: ortSessionOptions,
 	}
-	runtime.SetFinalizer(session, func(session *Session) {
-		session.release()
-	})
 
 	var ortAllocator *C.OrtAllocator
 	errMsg = C.createAllocator(gAPI.ortAPI, ortSession, gAPI.ortMemoryInfo, &ortAllocator)
@@ -77,6 +73,8 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 			return nil, err
 		}
 
+		//defer C.releaseTypeInfo(gAPI.ortAPI, info)
+
 		inputsInfo[i] = typeInfo
 	}
 
@@ -101,6 +99,8 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 			return nil, newCStatusErr(errMsg)
 		}
 
+		//defer C.releaseTypeInfo(gAPI.ortAPI, info)
+
 		typeInfo, err := createTypeInfo(info)
 		if err != nil {
 			return nil, err
@@ -119,7 +119,7 @@ func createSession(env *Env, modelPath string) (*Session, error) {
 	return session, nil
 }
 
-func (s *Session) release() {
+func (s *Session) Release() {
 	if s == nil {
 		return
 	}

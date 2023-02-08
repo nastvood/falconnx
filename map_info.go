@@ -6,24 +6,11 @@ package falconnx
 import "C"
 import (
 	"fmt"
-	"runtime"
 )
 
 type MapInfo struct {
-	ortMapTypeInfo *C.OrtMapTypeInfo
-
 	KeyElementType ElementType
 	ValueTypeInfo  *TypeInfo
-}
-
-func (mi *MapInfo) release() {
-	if mi == nil {
-		return
-	}
-
-	if mi.ortMapTypeInfo != nil {
-		C.releaseMapTypeInfo(gAPI.ortAPI, mi.ortMapTypeInfo)
-	}
 }
 
 func (mi *MapInfo) String() string {
@@ -40,6 +27,8 @@ func createMapInfo(info *C.OrtTypeInfo) (*MapInfo, error) {
 	if errMsg != nil {
 		return nil, newCStatusErr(errMsg)
 	}
+
+	defer C.releaseMapTypeInfo(gAPI.ortAPI, ortMapTypeInfo)
 
 	var onnxTensorElementDataType C.enum_ONNXTensorElementDataType
 	errMsg = C.getMapKeyType(gAPI.ortAPI, ortMapTypeInfo, &onnxTensorElementDataType)
@@ -59,14 +48,9 @@ func createMapInfo(info *C.OrtTypeInfo) (*MapInfo, error) {
 	}
 
 	mapInfo := &MapInfo{
-		ortMapTypeInfo: ortMapTypeInfo,
 		KeyElementType: ElementTypeFromC(onnxTensorElementDataType),
 		ValueTypeInfo:  valueTypeInfo,
 	}
-
-	runtime.SetFinalizer(mapInfo, func(mi *MapInfo) {
-		mi.release()
-	})
 
 	return mapInfo, nil
 }

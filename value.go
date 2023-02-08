@@ -99,6 +99,8 @@ func (v *Value) GetTypeInfo() (*TypeInfo, error) {
 		return nil, err
 	}
 
+	//C.releaseTypeInfo(gAPI.ortAPI, info)
+
 	v.typeInfo = typeInfo
 	v.onnxType = ref(typeInfo.Type)
 
@@ -194,7 +196,7 @@ func CreateTensor[T ONNXTypeEl](input []T, shape []int64) (*Value, error) {
 	return val, nil
 }
 
-func GetTensorData[T ONNXTypeEl](v *Value, totalElementCount *uint64) ([]T, error) {
+func GetTensorData[T ONNXTypeEl](v *Value, totalElementCount int64) ([]T, error) {
 	if err := v.initCheck(); err != nil {
 		return nil, err
 	}
@@ -205,15 +207,6 @@ func GetTensorData[T ONNXTypeEl](v *Value, totalElementCount *uint64) ([]T, erro
 	}
 	if *onnxType != OnnxTypeTensor {
 		return nil, ErrNoTensor
-	}
-
-	if totalElementCount == nil {
-		typeInfo, err := v.GetTypeInfo()
-		if err != nil {
-			return nil, err
-		}
-
-		totalElementCount = ref(typeInfo.TensorInfo.TotalElementCount)
 	}
 
 	data := unsafe.Pointer(uintptr(0))
@@ -250,7 +243,7 @@ func GetTensorData[T ONNXTypeEl](v *Value, totalElementCount *uint64) ([]T, erro
 		return nil, fmt.Errorf("GetTensorData is not implemented for %T", t)
 	}
 
-	count := int(*totalElementCount)
+	count := int(totalElementCount)
 	res := make([]T, count)
 	for i := 0; i < count; i++ {
 		res[i] = *(*T)(unsafe.Add(data, size*i))
@@ -292,8 +285,8 @@ func GetMapData[K, V ONNXTypeEl](v *Value, allocator *allocator) (map[K]V, error
 		infs[i] = info
 	}
 
-	keys, _ := GetTensorData[K](values[0], ref(infs[0].TensorInfo.TotalElementCount))
-	vals, _ := GetTensorData[V](values[1], ref(infs[1].TensorInfo.TotalElementCount))
+	keys, _ := GetTensorData[K](values[0], infs[0].TensorInfo.TotalElementCount)
+	vals, _ := GetTensorData[V](values[1], infs[1].TensorInfo.TotalElementCount)
 
 	res := make(map[K]V, len(keys))
 	for i := range keys {

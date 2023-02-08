@@ -57,3 +57,13 @@ func goStrings(length int, argv **C.char) []string {
 func ref[T any](t T) *T {
 	return &t
 }
+
+func index[E comparable](s []E, v E) int {
+	for i, vs := range s {
+		if v == vs {
+			return i
+		}
+	}
+
+	return -1
+}

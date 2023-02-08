@@ -4,28 +4,14 @@ package falconnx
 	#include "api.h"
 */
 import "C"
-import (
-	"runtime"
-)
 
 type TypeInfo struct {
-	ortTypeInfo *C.OrtTypeInfo
 	ortONNXType C.enum_ONNXType
 
 	Type         OnnxType
 	TensorInfo   *TensorInfo
 	SequenceInfo *SequenceInfo
 	MapInfo      *MapInfo
-}
-
-func (ti *TypeInfo) release() {
-	if ti == nil {
-		return
-	}
-
-	if ti.ortTypeInfo != nil {
-		C.releaseTypeInfo(gAPI.ortAPI, ti.ortTypeInfo)
-	}
 }
 
 func createTypeInfo(info *C.OrtTypeInfo) (*TypeInfo, error) {
@@ -61,7 +47,6 @@ func createTypeInfo(info *C.OrtTypeInfo) (*TypeInfo, error) {
 	}
 
 	typeInfo := &TypeInfo{
-		ortTypeInfo: info,
 		ortONNXType: ortONNXType,
 
 		Type:         onnxType,
@@ -69,10 +54,6 @@ func createTypeInfo(info *C.OrtTypeInfo) (*TypeInfo, error) {
 		SequenceInfo: sequenceInfo,
 		MapInfo:      mapInfo,
 	}
-
-	runtime.SetFinalizer(typeInfo, func(ti *TypeInfo) {
-		ti.release()
-	})
 
 	return typeInfo, nil
 }
